@@ -17,17 +17,13 @@ UINT Udp::enable() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::Udp::enable()");
 
-    UINT ret = NX_SUCCESS;
-
-
     // Enable the UDP protocol
-    ret = nx_udp_enable(&ipInstance);
+    const auto ret = nx_udp_enable(&ipInstance);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("ICMP enable failed. nx_icmp_enable() = 0x%02x\r\n", ret);
         return NX_NOT_ENABLED;
     }
 
-
-    return TX_SUCCESS;
+    return ret;
 }

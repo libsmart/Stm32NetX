@@ -15,24 +15,10 @@ UINT PacketPool::create() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::PacketPool::create()");
 
-    UINT ret = NX_SUCCESS;
-    UCHAR *memPtr = nullptr;
-    CHAR packetPool_name[] = "Stm32NetX::PacketPool";
-
-    // Allocate the memory for packet_pool
-    /*
-    ret = tx_byte_allocate(NX.byte_pool, reinterpret_cast<void **>(&memPtr),
-                           LIBSMART_STM32NETX_PACKET_POOL_SIZE, TX_NO_WAIT);
-    if (ret != TX_SUCCESS) {
-        log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("Packet pool allocation failed. tx_byte_allocate() = 0x%02x\r\n", ret);
-        return NX_NOT_ENABLED;
-    }
-    */
-
+    static CHAR packetPool_name[] = "Stm32NetX::PacketPool";
 
     // Create the Packet pool to be used for packet allocation
-    ret = nx_packet_pool_create(this,
+    const auto ret = nx_packet_pool_create(this,
                                 packetPool_name,
                                 LIBSMART_STM32NETX_PAYLOAD_SIZE,
                                 NX.bytePool.allocate(LIBSMART_STM32NETX_PACKET_POOL_SIZE),
@@ -43,6 +29,5 @@ UINT PacketPool::create() {
         return NX_NOT_ENABLED;
     }
 
-
-    return TX_SUCCESS;
+    return ret;
 }

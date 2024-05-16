@@ -8,22 +8,8 @@
 using namespace Stm32NetX;
 
 UINT NetX::createNetworkThread() {
-    UINT ret = NX_SUCCESS;
-    UCHAR *memPtr = nullptr;
-    CHAR mainNetThread_name[] = "Stm32NetX::NetX";
 
-    // Allocate memory for the main network thread
-    ret = tx_byte_allocate(byte_pool,
-                           reinterpret_cast<void **>(&memPtr),
-                           LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE,
-                           TX_NO_WAIT);
-    if (ret != TX_SUCCESS) {
-        log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("NetX thread stack allocation failed. tx_byte_allocate() = 0x%02x\r\n", ret);
-        return NX_NOT_ENABLED;
-    }
-
-    setStack(memPtr, LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE);
+    setStack(bytePool.allocate(LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE), LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE);
 
     // Start thread
     createThread();
@@ -35,6 +21,8 @@ UINT NetX::createNetworkThread() {
 void NetX::networkThread() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::NetX::networkThread()");
+
+    ULONG actual_status;
 
     enum {
         LINK_UNKNOWN,
@@ -91,6 +79,7 @@ void NetX::networkThread() {
                         );
             }
             ipState = IP_SET;
+            tx_thread_sleep(LIBSMART_STM32NETX_NETX_LINK_CHECK_INTERVAL);
         } else {
             // IP not set
             if (ipState != IP_UNSET) {
@@ -100,8 +89,7 @@ void NetX::networkThread() {
             ipState = IP_UNSET;
 
             // Enable link
-            // nx_ip_driver_direct_command(&ipInstance, NX_LINK_ENABLE,
-            // &actual_status);
+            // nx_ip_driver_direct_command(&ipInstance, NX_LINK_ENABLE, &actual_status);
 
             // Restart DHCP Client
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
@@ -109,8 +97,9 @@ void NetX::networkThread() {
             dhcp.reinitialize();
             dhcp.start();
 #endif
+            tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
         }
 
-        tx_thread_sleep(LIBSMART_STM32NETX_NETX_LINK_CHECK_INTERVAL);
+
     }
 }

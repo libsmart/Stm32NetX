@@ -22,32 +22,21 @@ UINT IpInstance::create() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::IpInstance::create()");
 
-    UINT ret = NX_SUCCESS;
-    UCHAR *memPtr = nullptr;
-    CHAR ipInstance_name[] = "Stm32NetX::IpInstance";
 
-    // Allocate the memory for ip instance
-    ret = tx_byte_allocate(NX.byte_pool, reinterpret_cast<void **>(&memPtr),
-                           2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE, TX_NO_WAIT);
-    if (ret != TX_SUCCESS) {
-        log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("IP instance allocation failed. tx_byte_allocate() = 0x%02x\r\n", ret);
-        return NX_NOT_ENABLED;
-    }
-
+    static CHAR name[] = "Stm32NetX::IpInstance";
 
     // Create the IP instance
-    ret = nx_ip_create(this, ipInstance_name, STATIC_IP, STATIC_IP_MASK, &NX.packetPool,
-                       nx_stm32_eth_driver,
-                       memPtr, 2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY);
+    const auto ret = nx_ip_create(this, name, STATIC_IP, STATIC_IP_MASK, &NX.packetPool,
+                                  nx_stm32_eth_driver,
+                                  NX.bytePool.allocate(2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE),
+                                  2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("IP instance creation failed. nx_ip_create() = 0x%02x\r\n", ret);
         return NX_NOT_ENABLED;
     }
 
-
-    return TX_SUCCESS;
+    return ret;
 }
 
 UINT IpInstance::interfaceStatusCheck(ULONG needed_status, ULONG wait_option) {
