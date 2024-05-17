@@ -39,14 +39,18 @@ void NetX::networkThread() {
     // Wait until hardware is ready
     tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND * 3);
 
+    // for(;;) {
+        // tx_thread_sleep(1);
+    // }
+
     for (;;) {
         HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
         // Check for network link
-        UINT ret = ipInstance.interfaceStatusCheck(NX_IP_LINK_ENABLED, TX_TIMER_TICKS_PER_SECOND / 10);
+        UINT ret = ipInstance->interfaceStatusCheck(NX_IP_LINK_ENABLED, TX_TIMER_TICKS_PER_SECOND / 10);
         if (ret != NX_SUCCESS) {
             if (linkState != LINK_DOWN) {
-                log(Stm32ItmLogger::LoggerInterface::Severity::DEBUGGING)
+                log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): LINK DOWN");
             }
             linkState = LINK_DOWN;
@@ -58,24 +62,24 @@ void NetX::networkThread() {
 
         // Link detected
         if (linkState != LINK_UP) {
-            log(Stm32ItmLogger::LoggerInterface::Severity::DEBUGGING)
+            log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                     ->println("Stm32NetX::NetX::networkThread(): LINK UP");
         }
         linkState = LINK_UP;
 
         // Check for IP address
-        ret = ipInstance.interfaceStatusCheck(NX_IP_ADDRESS_RESOLVED, TX_TIMER_TICKS_PER_SECOND / 10);
+        ret = ipInstance->interfaceStatusCheck(NX_IP_ADDRESS_RESOLVED, TX_TIMER_TICKS_PER_SECOND / 10);
         if (ret == NX_SUCCESS) {
             // Connected and IP set
             if (ipState != IP_SET) {
-                const ULONG ip = ipInstance.ipAddressGet();
-                log(Stm32ItmLogger::LoggerInterface::Severity::DEBUGGING)
+                const ULONG ip = ipInstance->ipAddressGet();
+                log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->printf("Stm32NetX::NetX::networkThread(): IP SET (%lu.%lu.%lu.%lu/%d)\r\n",
                                  (ip >> 24) & 0xff,
                                  (ip >> 16) & 0xff,
                                  (ip >> 8) & 0xff,
                                  (ip >> 0) & 0xff,
-                                 ipInstance.ipMaskCidrGet()
+                                 ipInstance->ipMaskCidrGet()
                         );
             }
             ipState = IP_SET;
@@ -83,19 +87,19 @@ void NetX::networkThread() {
         } else {
             // IP not set
             if (ipState != IP_UNSET) {
-                log(Stm32ItmLogger::LoggerInterface::Severity::DEBUGGING)
+                log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): IP UNSET");
             }
             ipState = IP_UNSET;
 
             // Enable link
-            // nx_ip_driver_direct_command(&ipInstance, NX_LINK_ENABLE, &actual_status);
+            // ipInstance.driverDirectCommand(NX_LINK_ENABLE, &actual_status);
 
             // Restart DHCP Client
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
-            dhcp.stop();
-            dhcp.reinitialize();
-            dhcp.start();
+            dhcp->stop();
+            dhcp->reinitialize();
+            dhcp->start();
 #endif
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
         }

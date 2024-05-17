@@ -67,7 +67,7 @@ UINT MX_NetXDuo_Init(VOID *memory_ptr)
 
   /* USER CODE BEGIN MX_NetXDuo_Init */
 
-  // Jump to our C++ thread setup function
+  // Jump to our C++ NetX thread setup function
   ret = Stm32NetX_setup(byte_pool);
   assert_param(ret == TX_SUCCESS);
 

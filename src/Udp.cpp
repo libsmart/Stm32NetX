@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "nx_api.h"
+#ifdef NX_IP_UDP_ENABLED
+
 #include "Udp.hpp"
 #include "Stm32NetX.hpp"
 #include "IpInstance.hpp"
@@ -21,9 +24,11 @@ UINT Udp::enable() {
     const auto ret = nx_udp_enable(&ipInstance);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("ICMP enable failed. nx_icmp_enable() = 0x%02x\r\n", ret);
+                ->printf("UDP enable failed. nx_udp_enable() = 0x%02x\r\n", ret);
         return NX_NOT_ENABLED;
     }
 
     return ret;
 }
+
+#endif

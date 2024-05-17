@@ -21,7 +21,8 @@ UINT PacketPool::create() {
     const auto ret = nx_packet_pool_create(this,
                                 packetPool_name,
                                 LIBSMART_STM32NETX_PAYLOAD_SIZE,
-                                NX.bytePool.allocate(LIBSMART_STM32NETX_PACKET_POOL_SIZE),
+                                // NX.bytePool.allocate(LIBSMART_STM32NETX_PACKET_POOL_SIZE),
+                                memPacketpool,
                                 LIBSMART_STM32NETX_PACKET_POOL_SIZE);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)

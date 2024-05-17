@@ -17,7 +17,7 @@ This library manages the basic network tasks for Netx (ThreadX) in a OOP way.
 
 ## Installation
 
-In file `app_netxduo.c` add the following:
+In file `NetXDuo/App/app_netxduo.c` add the following:
 
 ```c
 /* USER CODE BEGIN Includes */
@@ -30,12 +30,22 @@ In file `app_netxduo.c` add the following:
 
 /* USER CODE BEGIN MX_NetXDuo_Init */
 
-// Jump to our C++ thread setup function
+// Jump to our C++ NetX thread setup function
 ret = Stm32NetX_setup(byte_pool);
-if(ret != TX_SUCCESS) Error_Handler();
+assert_param(ret == TX_SUCCESS);
 
 // ... //
 
 /* USER CODE END MX_NetXDuo_Init */
 ```
+
+
+
+### STM32CubeMX
+
+Do not include the Ethernet Interface, Stm32NetX has a modified version of the driver.
+
+![image-20240517155504182](README.assets/image-20240517155504182.png)
+
+
 

@@ -24,6 +24,8 @@ namespace Stm32NetX {
 
         UINT interfaceStatusCheck(ULONG needed_status, ULONG wait_option);
 
+        UINT driverDirectCommand(UINT command, ULONG *return_value_ptr);
+
         UINT ipAddressGet(ULONG *ip_address, ULONG *network_mask);
 
         ULONG ipAddressGet();
@@ -31,6 +33,7 @@ namespace Stm32NetX {
         ULONG ipMaskGet();
 
         uint8_t ipMaskCidrGet();
+
 
     protected:
         NetX &NX;

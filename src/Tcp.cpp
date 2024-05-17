@@ -3,6 +3,9 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#include "nx_api.h"
+#ifdef NX_IP_TCP_ENABLED
+
 #include "Tcp.hpp"
 #include "Stm32NetX.hpp"
 #include "IpInstance.hpp"
@@ -21,9 +24,11 @@ UINT Tcp::enable() {
     const auto ret = nx_tcp_enable(&ipInstance);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("ICMP enable failed. nx_icmp_enable() = 0x%02x\r\n", ret);
+                ->printf("TCP enable failed. nx_tcp_enable() = 0x%02x\r\n", ret);
         return NX_NOT_ENABLED;
     }
 
     return ret;
 }
+
+#endif

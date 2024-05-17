@@ -29,6 +29,7 @@
 #include "nx_stm32_phy_driver.h"
 
 #endif /* NX_STM32_ETH_DRIVER_H */
+#include "Stm32ItmLoggerCPPWrapper.hpp"
 
 /****** DRIVER SPECIFIC ****** End of part/vendor specific include file area!  */
 
@@ -261,6 +262,12 @@ VOID  nx_stm32_eth_driver(NX_IP_DRIVER *driver_req_ptr)
     /* Default to successful return.  */
     driver_req_ptr -> nx_ip_driver_status =  NX_DRIVER_ERROR;
   }
+
+    if(driver_req_ptr->nx_ip_driver_status != 0) {
+        Logger_printf("ETH DRIVER ERROR: driver_req_ptr->nx_ip_driver_status = %d\r\n", (driver_req_ptr->nx_ip_driver_status));
+        Logger_printf("ETH DRIVER ERROR: driver_req_ptr->nx_ip_driver_command = %d\r\n", (driver_req_ptr->nx_ip_driver_command));
+    }
+
 }
 
 
@@ -1605,7 +1612,6 @@ static UINT  _nx_driver_hardware_disable(NX_IP_DRIVER *driver_req_ptr)
 /*                                            resulting in version 6.1    */
 /*                                                                        */
 /**************************************************************************/
-
 static UINT  _nx_driver_hardware_packet_send(NX_PACKET *packet_ptr)
 {
 
@@ -2031,5 +2037,16 @@ void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)
     _nx_ip_driver_deferred_processing(nx_driver_information.nx_driver_information_ip_ptr);
   }
 }
+
+void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
+{
+
+    Logger_printf("ETH ERROR: heth->gState = 0x%08x\r\n", heth->gState);
+    Logger_printf("ETH ERROR: heth->ErrorCode = 0x%08x\r\n", heth->ErrorCode);
+    Logger_printf("ETH ERROR: heth->DMAErrorCode = 0x%08x\r\n", heth->DMAErrorCode);
+    Logger_printf("ETH ERROR: heth->MACErrorCode = 0x%08x\r\n", heth->MACErrorCode);
+
+}
+
 
 /****** DRIVER SPECIFIC ****** Start of part/vendor specific internal driver functions.  */

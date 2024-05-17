@@ -50,6 +50,7 @@ static UCHAR tx_byte_pool_buffer[TX_APP_MEM_POOL_SIZE];
 static TX_BYTE_POOL tx_app_byte_pool;
 
 /* USER CODE BEGIN NX_Pool_Buffer */
+CCMRAM
 /* USER CODE END NX_Pool_Buffer */
 static UCHAR  nx_byte_pool_buffer[NX_APP_MEM_POOL_SIZE];
 static TX_BYTE_POOL nx_app_byte_pool;

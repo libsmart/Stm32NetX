@@ -26,9 +26,10 @@ UINT IpInstance::create() {
     static CHAR name[] = "Stm32NetX::IpInstance";
 
     // Create the IP instance
-    const auto ret = nx_ip_create(this, name, STATIC_IP, STATIC_IP_MASK, &NX.packetPool,
+    const auto ret = nx_ip_create(this, name, STATIC_IP, STATIC_IP_MASK, &packetPool,
                                   nx_stm32_eth_driver,
                                   NX.bytePool.allocate(2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE),
+                                  // ipinstance,
                                   2 * LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE, DEFAULT_PRIORITY);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
@@ -46,6 +47,15 @@ UINT IpInstance::interfaceStatusCheck(ULONG needed_status, ULONG wait_option) {
     if (ret != NX_SUCCESS && ret != NX_NOT_SUCCESSFUL) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("Interface status check failed. nx_ip_interface_status_check() = 0x%02x\r\n", ret);
+    }
+    return ret;
+}
+
+UINT IpInstance::driverDirectCommand(const UINT command, ULONG *return_value_ptr) {
+    const auto ret = nx_ip_driver_direct_command(this, command, return_value_ptr);
+    if (ret != NX_SUCCESS) {
+        log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
+                ->printf("Direct driver command failed. nx_ip_driver_direct_command() = 0x%02x\r\n", ret);
     }
     return ret;
 }

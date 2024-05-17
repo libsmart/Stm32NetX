@@ -26,7 +26,7 @@ UINT Dhcp::create() {
     const auto ret = nx_dhcp_create(this, &ipInstance, dhcpClient_name);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
-                ->printf("DHCP create failed. nx_icmp_enable() = 0x%02x\r\n", ret);
+                ->printf("DHCP create failed. nx_dhcp_create() = 0x%02x\r\n", ret);
         return NX_NOT_ENABLED;
     }
 
