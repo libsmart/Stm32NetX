@@ -39,7 +39,7 @@ namespace Stm32NetX {
         explicit NetX(TX_BYTE_POOL *byte_pool)
             : NetX(byte_pool, getLogger()) { ; }
 
-        explicit NetX(TX_BYTE_POOL *byte_pool, Stm32ItmLogger::LoggerInterface *logger)
+        NetX(TX_BYTE_POOL *byte_pool, Stm32ItmLogger::LoggerInterface *logger)
             : Loggable(logger),
               Thread(Stm32ThreadX::BOUNCE(NetX, networkThread), reinterpret_cast<ULONG>(this), priority(),
                      "Stm32NetX::NetX"),
@@ -105,6 +105,8 @@ namespace Stm32NetX {
 
             return TX_SUCCESS;
         }
+
+        static Stm32ThreadX::BytePool *getBytePool() { return &bytePool; }
 
     protected:
         TX_BYTE_POOL *byte_pool;
