@@ -8,7 +8,6 @@
 using namespace Stm32NetX;
 
 UINT NetX::createNetworkThread() {
-
     setStack(bytePool.allocate(LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE), LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE);
 
     // Start thread
@@ -40,7 +39,7 @@ void NetX::networkThread() {
     tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND * 3);
 
     // for(;;) {
-        // tx_thread_sleep(1);
+    // tx_thread_sleep(1);
     // }
 
     for (;;) {
@@ -49,6 +48,9 @@ void NetX::networkThread() {
         // Check for network link
         UINT ret = ipInstance->interfaceStatusCheck(NX_IP_LINK_ENABLED, TX_TIMER_TICKS_PER_SECOND / 10);
         if (ret != NX_SUCCESS) {
+            flags.clear(HAS_LINK);
+            flags.clear(HAS_IP);
+
             if (linkState != LINK_DOWN) {
                 log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): LINK DOWN");
@@ -66,6 +68,8 @@ void NetX::networkThread() {
                     ->println("Stm32NetX::NetX::networkThread(): LINK UP");
         }
         linkState = LINK_UP;
+        // eventFlags.set(NetXEventFlags::Flags_t{NetXEventFlags::Flags::HAS_LINK}, Stm32ThreadX::EventFlags::setOption_t::OR);
+        flags.set(HAS_LINK);
 
         // Check for IP address
         ret = ipInstance->interfaceStatusCheck(NX_IP_ADDRESS_RESOLVED, TX_TIMER_TICKS_PER_SECOND / 10);
@@ -83,14 +87,17 @@ void NetX::networkThread() {
                         );
             }
             ipState = IP_SET;
+            flags.set(HAS_IP, Stm32ThreadX::EventFlags::setOption_t::OR);
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_LINK_CHECK_INTERVAL);
         } else {
             // IP not set
+            flags.clear(HAS_IP);
             if (ipState != IP_UNSET) {
                 log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): IP UNSET");
             }
             ipState = IP_UNSET;
+
 
             // Enable link
             // ipInstance.driverDirectCommand(NX_LINK_ENABLE, &actual_status);
@@ -103,7 +110,5 @@ void NetX::networkThread() {
 #endif
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
         }
-
-
     }
 }

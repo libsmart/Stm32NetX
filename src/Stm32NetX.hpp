@@ -11,6 +11,7 @@
 #include "Arp.hpp"
 #include "BytePool.hpp"
 #include "Dhcp.hpp"
+#include "EventFlags.hpp"
 #include "Icmp.hpp"
 #include "Tcp.hpp"
 #include "Udp.hpp"
@@ -30,10 +31,25 @@ namespace Stm32NetX {
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
     inline char memDhcp[sizeof(Dhcp)] __attribute__((section(".data")));
 #endif
+
+
     class NetX : public Stm32ItmLogger::Loggable, public Stm32ThreadX::Thread {
         friend PacketPool;
         friend IpInstance;
         friend Arp;
+
+        using Flags = enum {
+            NONE = 0,
+            HAS_LINK = 1 << 0,
+            HAS_IP = 1 << 1,
+            HAS_IP_INSTANCE = 1 << 2,
+            HAS_PACKET_POOL = 1 << 3,
+            HAS_ARP_ENABLED = 1 << 4,
+            HAS_ICMP_ENABLED = 1 << 5,
+            HAS_UDP_ENABLED = 1 << 6,
+            HAS_TCP_ENABLED = 1 << 7,
+            HAS_DHCP_ENABLED = 1 << 8
+        };
 
     public:
         explicit NetX(TX_BYTE_POOL *byte_pool)
@@ -48,26 +64,41 @@ namespace Stm32NetX {
                     ->println("Stm32NetX::NetX::NetX()");
             bytePool.setLogger(getLogger());
 
+            flags.create();
+
             packetPool = new(bytePool.allocate(sizeof(PacketPool))) PacketPool(*this);
-            packetPool->create();
+            if (packetPool->create() == NX_SUCCESS) {
+                flags.set(HAS_PACKET_POOL);
+            }
+
 
             ipInstance = new(bytePool.allocate(sizeof(IpInstance))) IpInstance(*this, *packetPool);
-            ipInstance->create();
+            if (ipInstance->create() == NX_SUCCESS) {
+                flags.set(HAS_IP_INSTANCE);
+            }
 
             arp = new(bytePool.allocate(sizeof(Arp))) Arp(*this, *ipInstance);
-            arp->enable();
+            if (arp->enable() == NX_SUCCESS) {
+                flags.set(HAS_ARP_ENABLED);
+            }
 
             icmp = new(bytePool.allocate(sizeof(Icmp))) Icmp(*this, *ipInstance);
-            icmp->enable();
+            if (icmp->enable() == NX_SUCCESS) {
+                flags.set(HAS_ICMP_ENABLED);
+            }
 
 #ifdef NX_IP_UDP_ENABLED
             udp = new(bytePool.allocate(sizeof(Udp))) Udp(*this, *ipInstance);
-            udp->enable();
+            if (udp->enable() == NX_SUCCESS) {
+                flags.set(HAS_UDP_ENABLED);
+            }
 #endif
 
 #ifdef NX_IP_TCP_ENABLED
             tcp = new(bytePool.allocate(sizeof(Tcp))) Tcp(*this, *ipInstance);
-            tcp->enable();
+            if (tcp->enable() == NX_SUCCESS) {
+                flags.set(HAS_TCP_ENABLED);
+            }
 #endif
 
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
@@ -75,7 +106,9 @@ namespace Stm32NetX {
             // and ethernet is using DMA
             // dhcp = new(bytePool.allocate(sizeof(Dhcp))) Dhcp(*this, *ipInstance);
             dhcp = new(memDhcp) Dhcp(*this, *ipInstance);
-            dhcp->create();
+            if (dhcp->create() == NX_SUCCESS) {
+                flags.set(HAS_DHCP_ENABLED);
+            }
 #endif
 
             createNetworkThread();
@@ -87,6 +120,42 @@ namespace Stm32NetX {
         [[noreturn]] void networkThread();
 
 
+        static Stm32ThreadX::BytePool *getBytePool() { return &bytePool; }
+
+        [[nodiscard]] virtual PacketPool *getPacketPool() const {
+            return packetPool;
+        }
+
+        [[nodiscard]] virtual IpInstance *getIpInstance() const {
+            return ipInstance;
+        }
+
+        void waitForIpInstance() { flags.await(HAS_IP_INSTANCE); }
+        void waitForPacketPool() { flags.await(HAS_PACKET_POOL); }
+        void waitForLink() { flags.await(HAS_LINK); }
+        void waitForIp() { flags.await(HAS_IP); }
+        bool isFlagSet(ULONG requestedFlags) { return flags.isSet(requestedFlags); }
+        bool isIpSet() { return isFlagSet(HAS_IP); }
+
+    protected:
+        Stm32ThreadX::EventFlags flags{"Stm32NetX::NetX::eventFlags", getLogger()};
+        TX_BYTE_POOL *byte_pool;
+        static Stm32ThreadX::BytePool bytePool;
+        PacketPool *packetPool;
+        IpInstance *ipInstance;
+        Arp *arp;
+        Icmp *icmp;
+#ifdef NX_IP_UDP_ENABLED
+        Udp *udp = {};
+#endif
+#ifdef NX_IP_TCP_ENABLED
+        Tcp *tcp = {};
+#endif
+#ifdef LIBSMART_STM32NETX_ENABLE_DHCP
+        Dhcp *dhcp = {};
+#endif
+
+    public:
         static UINT setup(TX_BYTE_POOL *byte_pool) {
             Stm32ItmLogger::logger.setSeverity(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
                     ->println("Stm32NetX::NetX::setup()");
@@ -105,25 +174,6 @@ namespace Stm32NetX {
 
             return TX_SUCCESS;
         }
-
-        static Stm32ThreadX::BytePool *getBytePool() { return &bytePool; }
-
-    protected:
-        TX_BYTE_POOL *byte_pool;
-        static Stm32ThreadX::BytePool bytePool;
-        PacketPool *packetPool;
-        IpInstance *ipInstance;
-        Arp *arp;
-        Icmp *icmp;
-#ifdef NX_IP_UDP_ENABLED
-        Udp *udp = {};
-#endif
-#ifdef NX_IP_TCP_ENABLED
-        Tcp *tcp = {};
-#endif
-#ifdef LIBSMART_STM32NETX_ENABLE_DHCP
-        Dhcp *dhcp = {};
-#endif
     };
 
     inline Stm32ThreadX::BytePool NetX::bytePool(nullptr);
