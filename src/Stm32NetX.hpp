@@ -48,7 +48,8 @@ namespace Stm32NetX {
             HAS_ICMP_ENABLED = 1 << 5,
             HAS_UDP_ENABLED = 1 << 6,
             HAS_TCP_ENABLED = 1 << 7,
-            HAS_DHCP_ENABLED = 1 << 8
+            HAS_DHCP_ENABLED = 1 << 8,
+            THE_END = 1 << 31
         };
 
     public:
@@ -130,15 +131,19 @@ namespace Stm32NetX {
             return ipInstance;
         }
 
-        void waitForIpInstance() { flags.await(HAS_IP_INSTANCE); }
-        void waitForPacketPool() { flags.await(HAS_PACKET_POOL); }
-        void waitForLink() { flags.await(HAS_LINK); }
-        void waitForIp() { flags.await(HAS_IP); }
+        UINT waitForIpInstance();
+
+        UINT waitForPacketPool();
+
+        UINT waitForLink();
+
+        UINT waitForIp();
+
         bool isFlagSet(ULONG requestedFlags) { return flags.isSet(requestedFlags); }
         bool isIpSet() { return isFlagSet(HAS_IP); }
 
     protected:
-        Stm32ThreadX::EventFlags flags{"Stm32NetX::NetX::eventFlags", getLogger()};
+        Stm32ThreadX::EventFlags flags{"Stm32NetX::NetX::flags", getLogger()};
         TX_BYTE_POOL *byte_pool;
         static Stm32ThreadX::BytePool bytePool;
         PacketPool *packetPool;
@@ -176,7 +181,7 @@ namespace Stm32NetX {
         }
     };
 
-    inline Stm32ThreadX::BytePool NetX::bytePool(nullptr);
+    inline Stm32ThreadX::BytePool NetX::bytePool;
 }
 
 #endif //LIBSMART_STM32NETX_STM32NETX_HPP

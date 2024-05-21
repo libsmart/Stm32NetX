@@ -48,15 +48,15 @@ void NetX::networkThread() {
         // Check for network link
         UINT ret = ipInstance->interfaceStatusCheck(NX_IP_LINK_ENABLED, TX_TIMER_TICKS_PER_SECOND / 10);
         if (ret != NX_SUCCESS) {
-            flags.clear(HAS_LINK);
-            flags.clear(HAS_IP);
-
             if (linkState != LINK_DOWN) {
                 log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): LINK DOWN");
             }
             linkState = LINK_DOWN;
             ipState = IP_UNKNOWN;
+            if (flags.isSet(HAS_LINK) || flags.isSet(HAS_IP)) {
+                flags.clear(HAS_LINK | HAS_IP);
+            }
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_LINK_CHECK_INTERVAL);
             continue; // NO LINK, repeat
         }
@@ -68,8 +68,9 @@ void NetX::networkThread() {
                     ->println("Stm32NetX::NetX::networkThread(): LINK UP");
         }
         linkState = LINK_UP;
+        flags.isSet(HAS_LINK) ? (void) 0 : (void) flags.set(HAS_LINK);
         // eventFlags.set(NetXEventFlags::Flags_t{NetXEventFlags::Flags::HAS_LINK}, Stm32ThreadX::EventFlags::setOption_t::OR);
-        flags.set(HAS_LINK);
+
 
         // Check for IP address
         ret = ipInstance->interfaceStatusCheck(NX_IP_ADDRESS_RESOLVED, TX_TIMER_TICKS_PER_SECOND / 10);
@@ -87,11 +88,13 @@ void NetX::networkThread() {
                         );
             }
             ipState = IP_SET;
-            flags.set(HAS_IP, Stm32ThreadX::EventFlags::setOption_t::OR);
+            flags.isSet(HAS_IP) ? (void) 0 : (void) flags.set(HAS_IP);
+
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_LINK_CHECK_INTERVAL);
         } else {
             // IP not set
-            flags.clear(HAS_IP);
+            flags.isSet(HAS_IP) ? (void) flags.clear(HAS_IP) : (void) 0;
+
             if (ipState != IP_UNSET) {
                 log(Stm32ItmLogger::LoggerInterface::Severity::NOTICE)
                         ->println("Stm32NetX::NetX::networkThread(): IP UNSET");
@@ -100,7 +103,8 @@ void NetX::networkThread() {
 
 
             // Enable link
-            // ipInstance.driverDirectCommand(NX_LINK_ENABLE, &actual_status);
+            // If MCU was started without LAN cable connected, link is not up
+            ipInstance->driverDirectCommand(NX_LINK_ENABLE, &actual_status);
 
             // Restart DHCP Client
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
@@ -111,4 +115,28 @@ void NetX::networkThread() {
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
         }
     }
+}
+
+UINT NetX::waitForIpInstance() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::NetX::waitForIpInstance()");
+    return flags.await(HAS_IP_INSTANCE);
+}
+
+UINT NetX::waitForPacketPool() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::NetX::waitForPacketPool()");
+    return flags.await(HAS_PACKET_POOL);
+}
+
+UINT NetX::waitForLink() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::NetX::waitForLink()");
+    return flags.await(HAS_LINK);
+}
+
+UINT NetX::waitForIp() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::NetX::waitForIp()");
+    return flags.await(HAS_IP);
 }

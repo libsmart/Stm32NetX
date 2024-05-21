@@ -53,7 +53,7 @@ UINT IpInstance::interfaceStatusCheck(ULONG needed_status, ULONG wait_option) {
 
 UINT IpInstance::driverDirectCommand(const UINT command, ULONG *return_value_ptr) {
     const auto ret = nx_ip_driver_direct_command(this, command, return_value_ptr);
-    if (ret != NX_SUCCESS) {
+    if (ret != NX_SUCCESS && ret != NX_ALREADY_ENABLED) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("Direct driver command failed. nx_ip_driver_direct_command() = 0x%02x\r\n", ret);
     }
