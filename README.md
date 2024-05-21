@@ -21,6 +21,7 @@ In file `NetXDuo/App/app_netxduo.c` add the following:
 
 ```c
 /* USER CODE BEGIN Includes */
+#include <main.h>
 #include "Stm32NetXCPPWrapper.hpp"
 /* USER CODE END Includes */
 
