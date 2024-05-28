@@ -34,6 +34,15 @@ namespace Stm32NetX {
 
         uint8_t ipMaskCidrGet();
 
+        UINT ipAddressSet(ULONG ip_address, ULONG network_mask);
+
+        UINT ipGatewayAddressClear();
+
+        UINT ipGatewayAddressGet(ULONG *ip_address);
+
+        ULONG ipGatewayAddressGet();
+
+        UINT ipGatewayAddressSet(ULONG ip_address);
 
     protected:
         NetX &NX;

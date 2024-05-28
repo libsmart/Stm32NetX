@@ -29,6 +29,8 @@ namespace Stm32NetX {
         UINT stop();
         UINT reinitialize();
 
+        const char *getClientName();
+
     protected:
         NetX &NX;
         IpInstance &ipInstance;

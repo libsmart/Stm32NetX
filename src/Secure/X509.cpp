@@ -4,6 +4,7 @@
  */
 
 #include "X509.hpp"
+#ifdef NX_SECURE_ENABLE
 
 UINT Stm32NetX::Secure::X509::certificateInitialize(const UCHAR *certificate_data, USHORT certificate_data_length,
                                                     UCHAR *raw_data_buffer, USHORT buffer_size,
@@ -32,3 +33,5 @@ UINT Stm32NetX::Secure::X509::certificateInitialize(const UCHAR *certificate_dat
 
     return ret;
 }
+
+#endif

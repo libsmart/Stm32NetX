@@ -33,6 +33,16 @@ namespace Stm32NetX {
 #endif
 
 
+    class NetXConfig {
+    public:
+        const char *hostname = LIBSMART_STM32NETX_DEFAULT_HOSTNAME;
+        bool dhcp = LIBSMART_STM32NETX_DEFAULT_DHCP;
+        ULONG ip_address = LIBSMART_STM32NETX_DEFAULT_IP_ADDRESS;
+        ULONG network_mask = LIBSMART_STM32NETX_DEFAULT_NETMASK;
+        ULONG gateway_address = LIBSMART_STM32NETX_DEFAULT_GATEWAY_ADDRESS;
+    };
+
+
     class NetX : public Stm32ItmLogger::Loggable, public Stm32ThreadX::Thread {
         friend PacketPool;
         friend IpInstance;
@@ -59,7 +69,7 @@ namespace Stm32NetX {
         NetX(TX_BYTE_POOL *byte_pool, Stm32ItmLogger::LoggerInterface *logger)
             : Loggable(logger),
               Thread(Stm32ThreadX::BOUNCE(NetX, networkThread), reinterpret_cast<ULONG>(this), priority(),
-                     "Stm32NetX::NetX"),
+                     "Stm32NetX::NetX::networkThread()"),
               byte_pool(byte_pool) {
             log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
                     ->println("Stm32NetX::NetX::NetX()");
@@ -71,7 +81,6 @@ namespace Stm32NetX {
             if (packetPool->create() == NX_SUCCESS) {
                 flags.set(HAS_PACKET_POOL);
             }
-
 
             ipInstance = new(bytePool.allocate(sizeof(IpInstance))) IpInstance(*this, *packetPool);
             if (ipInstance->create() == NX_SUCCESS) {
@@ -142,7 +151,10 @@ namespace Stm32NetX {
         bool isFlagSet(ULONG requestedFlags) { return flags.isSet(requestedFlags); }
         bool isIpSet() { return isFlagSet(HAS_IP); }
 
+        NetXConfig *getConfig() { return &nxConfig; };
+
     protected:
+        NetXConfig nxConfig;
         Stm32ThreadX::EventFlags flags{"Stm32NetX::NetX::flags", getLogger()};
         TX_BYTE_POOL *byte_pool;
         static Stm32ThreadX::BytePool bytePool;

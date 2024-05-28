@@ -43,7 +43,7 @@ void NetX::networkThread() {
     // }
 
     for (;;) {
-        HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
+        // HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
 
         // Check for network link
         UINT ret = ipInstance->interfaceStatusCheck(NX_IP_LINK_ENABLED, TX_TIMER_TICKS_PER_SECOND / 10);
@@ -106,12 +106,22 @@ void NetX::networkThread() {
             // If MCU was started without LAN cable connected, link is not up
             ipInstance->driverDirectCommand(NX_LINK_ENABLE, &actual_status);
 
-            // Restart DHCP Client
+
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
+            // Restart DHCP Client
             dhcp->stop();
-            dhcp->reinitialize();
-            dhcp->start();
+            if (getConfig()->dhcp) {
+                dhcp->reinitialize();
+                dhcp->start();
+            }
 #endif
+
+            // Set static ip
+            if (!getConfig()->dhcp) {
+                ipInstance->ipAddressSet(getConfig()->ip_address, getConfig()->network_mask);
+                ipInstance->ipGatewayAddressSet(getConfig()->gateway_address);
+            }
+
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
         }
     }

@@ -20,10 +20,11 @@ UINT Dhcp::create() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::Dhcp::create()");
 
-    static CHAR dhcpClient_name[] = "Stm32NetX::Dhcp";
+    // static CHAR dhcpClient_name[] = "Stm32NetX::Dhcp";
 
     // create the DHCP client
-    const auto ret = nx_dhcp_create(this, &ipInstance, dhcpClient_name);
+    // @see https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/netx-duo-dhcp-client/chapter3.md#nx_dhcp_create
+    const auto ret = nx_dhcp_create(this, &ipInstance, const_cast<CHAR *>(getClientName()));
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("DHCP create failed. nx_dhcp_create() = 0x%02x\r\n", ret);
@@ -34,6 +35,9 @@ UINT Dhcp::create() {
 }
 
 UINT Dhcp::start() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::Dhcp::start()");
+
     const auto ret = nx_dhcp_start(this);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
@@ -43,6 +47,9 @@ UINT Dhcp::start() {
 }
 
 UINT Dhcp::stop() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::Dhcp::stop()");
+
     const auto ret = nx_dhcp_stop(this);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
@@ -52,12 +59,22 @@ UINT Dhcp::stop() {
 }
 
 UINT Dhcp::reinitialize() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::Dhcp::reinitialize()");
+
     const auto ret = nx_dhcp_reinitialize(this);
     if (ret != NX_SUCCESS) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
                 ->printf("DHCP reinitialize failed. nx_dhcp_reinitialize() = 0x%02x\r\n", ret);
     }
     return ret;
+}
+
+const char *Dhcp::getClientName() {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->printf("Stm32NetX::Dhcp::getClientName()\r\n");
+
+    return NX.getConfig()->hostname;
 }
 
 #endif
