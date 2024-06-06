@@ -75,40 +75,22 @@ namespace Stm32NetX {
                     ->println("Stm32NetX::NetX::NetX()");
             bytePool.setLogger(getLogger());
 
-            flags.create();
+            // assert_param(flags.create() == TX_SUCCESS);
 
             packetPool = new(bytePool.allocate(sizeof(PacketPool))) PacketPool(*this);
-            if (packetPool->create() == NX_SUCCESS) {
-                flags.set(HAS_PACKET_POOL);
-            }
 
             ipInstance = new(bytePool.allocate(sizeof(IpInstance))) IpInstance(*this, *packetPool);
-            if (ipInstance->create() == NX_SUCCESS) {
-                flags.set(HAS_IP_INSTANCE);
-            }
 
             arp = new(bytePool.allocate(sizeof(Arp))) Arp(*this, *ipInstance);
-            if (arp->enable() == NX_SUCCESS) {
-                flags.set(HAS_ARP_ENABLED);
-            }
 
             icmp = new(bytePool.allocate(sizeof(Icmp))) Icmp(*this, *ipInstance);
-            if (icmp->enable() == NX_SUCCESS) {
-                flags.set(HAS_ICMP_ENABLED);
-            }
 
 #ifdef NX_IP_UDP_ENABLED
             udp = new(bytePool.allocate(sizeof(Udp))) Udp(*this, *ipInstance);
-            if (udp->enable() == NX_SUCCESS) {
-                flags.set(HAS_UDP_ENABLED);
-            }
 #endif
 
 #ifdef NX_IP_TCP_ENABLED
             tcp = new(bytePool.allocate(sizeof(Tcp))) Tcp(*this, *ipInstance);
-            if (tcp->enable() == NX_SUCCESS) {
-                flags.set(HAS_TCP_ENABLED);
-            }
 #endif
 
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
@@ -116,15 +98,32 @@ namespace Stm32NetX {
             // and ethernet is using DMA
             // dhcp = new(bytePool.allocate(sizeof(Dhcp))) Dhcp(*this, *ipInstance);
             dhcp = new(memDhcp) Dhcp(*this, *ipInstance);
-            if (dhcp->create() == NX_SUCCESS) {
-                flags.set(HAS_DHCP_ENABLED);
-            }
 #endif
 
             createNetworkThread();
         }
 
+
+        /**
+         * @brief Creates the network thread.
+         *
+         * This method creates the network thread and initializes the required resources.
+         *
+         * @return TX_SUCCESS if the network thread is created successfully,
+         *         or another error code if the creation fails.
+         */
         UINT createNetworkThread();
+
+
+        /**
+         * @brief Begins the network operation.
+         *
+         * This method starts the network operation and resumes the network thread.
+         * It is called to initialize the network stack and prepare it for sending and receiving data.
+         *
+         * @note This method should be called after setting up the required configurations.
+         */
+        void begin();
 
 
         [[noreturn]] void networkThread();

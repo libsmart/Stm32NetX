@@ -47,6 +47,7 @@ UINT IpInstance::interfaceStatusCheck(ULONG needed_status, ULONG wait_option) {
     // ->println("Stm32NetX::IpInstance::interfaceStatusCheck()");
 
     ULONG actual_status;
+    // @see https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/chapter4.md#nx_ip_interface_status_check
     const auto ret = nx_ip_interface_status_check(this, 0, needed_status,
                                                   &actual_status, wait_option);
     if (ret != NX_SUCCESS && ret != NX_NOT_SUCCESSFUL) {
@@ -60,6 +61,7 @@ UINT IpInstance::driverDirectCommand(const UINT command, ULONG *return_value_ptr
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::IpInstance::driverDirectCommand()");
 
+    // @see https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/chapter4.md#nx_ip_driver_direct_command
     const auto ret = nx_ip_driver_direct_command(this, command, return_value_ptr);
     if (ret != NX_SUCCESS && ret != NX_ALREADY_ENABLED) {
         log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)

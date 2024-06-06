@@ -10,11 +10,16 @@ using namespace Stm32NetX;
 UINT NetX::createNetworkThread() {
     setStack(bytePool.allocate(LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE), LIBSMART_STM32NETX_NETX_THREAD_STACK_SIZE);
 
-    // Start thread
+    // Create thread
     createThread();
-    resume();
+
+    // Run begin() to start thread
 
     return TX_SUCCESS;
+}
+
+void NetX::begin() {
+    resume();
 }
 
 void NetX::networkThread() {
@@ -35,12 +40,61 @@ void NetX::networkThread() {
         IP_SET
     } ipState = IP_UNKNOWN;
 
-    // Wait until hardware is ready
-    tx_thread_sleep(TX_TIMER_TICKS_PER_SECOND * 3);
 
-    // for(;;) {
-    // tx_thread_sleep(1);
-    // }
+    // Create packet pool service
+    if (packetPool->create() == NX_SUCCESS) {
+        flags.set(HAS_PACKET_POOL);
+    }
+
+
+    // Create ip instance service
+    if (ipInstance->create() == NX_SUCCESS) {
+        flags.set(HAS_IP_INSTANCE);
+        // Enable link
+        // If MCU was started without LAN cable connected, link is not up
+        ipInstance->driverDirectCommand(NX_LINK_ENABLE, &actual_status);
+    }
+
+
+    // Enable arp service
+    if (arp != nullptr && arp->enable() == NX_SUCCESS) {
+        flags.set(HAS_ARP_ENABLED);
+    }
+
+
+    // Enable icmp service
+    if (icmp != nullptr && icmp->enable() == NX_SUCCESS) {
+        flags.set(HAS_ICMP_ENABLED);
+    }
+
+
+    // Enable udp service
+#ifdef NX_IP_UDP_ENABLED
+    if (udp != nullptr && udp->enable() == NX_SUCCESS) {
+        flags.set(HAS_UDP_ENABLED);
+    }
+#endif
+
+
+    // Enable tcp service
+#ifdef NX_IP_TCP_ENABLED
+    if (tcp != nullptr && tcp->enable() == NX_SUCCESS) {
+        flags.set(HAS_TCP_ENABLED);
+    }
+#endif
+
+
+    // Create dhcp service
+#ifdef LIBSMART_STM32NETX_ENABLE_DHCP
+    if (dhcp != nullptr && dhcp->create() == NX_SUCCESS) {
+        flags.set(HAS_DHCP_ENABLED);
+    }
+#endif
+
+
+    // Wait until ip instance and driver is initialized
+    assert_param(ipInstance->interfaceStatusCheck(NX_IP_INITIALIZE_DONE, TX_WAIT_FOREVER) == NX_SUCCESS);
+
 
     for (;;) {
         // HAL_GPIO_TogglePin(LD1_GPIO_Port, LD1_Pin);
