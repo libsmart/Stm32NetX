@@ -9,6 +9,10 @@
 /*                                                                        */
 /**************************************************************************/
 
+#include "RTE_Components.h"
+#ifdef NX_ETH_INTERFACE_ENABLED
+#warning Using default eth driver nx_stm32_eth_driver.c
+#else
 
 /* Indicate that driver source is being compiled.  */
 
@@ -2050,3 +2054,4 @@ void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
 
 
 /****** DRIVER SPECIFIC ****** Start of part/vendor specific internal driver functions.  */
+#endif
