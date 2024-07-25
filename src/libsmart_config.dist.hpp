@@ -3,6 +3,11 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
+#ifndef LIBSMART_STM32NETX_LIBSMART_CONFIG_DIST_HPP
+#define LIBSMART_STM32NETX_LIBSMART_CONFIG_DIST_HPP
+
+#define LIBSMART_STM32NETX
+
 
 #include "nx_api.h"
 
@@ -31,3 +36,6 @@
 
 #define LIBSMART_STM32NETX_ENABLE_DHCP
 // #undef LIBSMART_STM32NETX_ENABLE_DHCP
+
+
+#endif
