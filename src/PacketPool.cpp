@@ -17,7 +17,7 @@ UINT PacketPool::create() {
 
     static CHAR packetPool_name[] = "Stm32NetX::PacketPool";
 
-    // Create the Packet pool to be used for packet allocation
+    // https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/chapter4.md#nx_packet_pool_create
     const auto ret = nx_packet_pool_create(this,
                                 packetPool_name,
                                 LIBSMART_STM32NETX_PAYLOAD_SIZE,
