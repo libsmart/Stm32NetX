@@ -8,7 +8,7 @@
 
 #define LIBSMART_STM32NETX
 
-
+#include <main.h>
 #include "nx_api.h"
 
 #define LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE 1024
