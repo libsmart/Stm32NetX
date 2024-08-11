@@ -2044,12 +2044,63 @@ void HAL_ETH_TxCpltCallback(ETH_HandleTypeDef *heth)
 
 void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
 {
-
     Logger_printf("ETH ERROR: heth->gState = 0x%08x\r\n", heth->gState);
-    Logger_printf("ETH ERROR: heth->ErrorCode = 0x%08x\r\n", heth->ErrorCode);
-    Logger_printf("ETH ERROR: heth->DMAErrorCode = 0x%08x\r\n", heth->DMAErrorCode);
-    Logger_printf("ETH ERROR: heth->MACErrorCode = 0x%08x\r\n", heth->MACErrorCode);
+    if((heth->gState | 0x00000000U) == 0) Logger_println("  HAL_ETH_STATE_RESET: Peripheral not yet Initialized or disabled");
+    if((heth->gState & 0x00000010U) != 0) Logger_println("  HAL_ETH_STATE_READY: Peripheral Communication started");
+    if((heth->gState & 0x00000023U) != 0) Logger_println("  HAL_ETH_STATE_BUSY: an internal process is ongoing");
+    if((heth->gState & 0x00000023U) != 0) Logger_println("  HAL_ETH_STATE_STARTED: an internal process is started");
+    if((heth->gState & 0x000000E0U) != 0) Logger_println("  HAL_ETH_STATE_ERROR: Error State");
 
+    Logger_printf("ETH ERROR: heth->ErrorCode = 0x%08x\r\n", heth->ErrorCode);
+    if((heth->ErrorCode | 0x00000000U) == 0) Logger_println("  HAL_ETH_ERROR_NONE: No error");
+    if((heth->ErrorCode & 0x00000001U) != 0) Logger_println("  HAL_ETH_ERROR_PARAM: Parameter error");
+    if((heth->ErrorCode & 0x00000002U) != 0) Logger_println("  HAL_ETH_ERROR_BUSY: Busy error");
+    if((heth->ErrorCode & 0x00000004U) != 0) Logger_println("  HAL_ETH_ERROR_TIMEOUT: Timeout error");
+    if((heth->ErrorCode & 0x00000008U) != 0) Logger_println("  HAL_ETH_ERROR_DMA: DMA transfer error");
+    if((heth->ErrorCode & 0x00000010U) != 0) Logger_println("  HAL_ETH_ERROR_MAC: MAC transfer error");
+    if((heth->ErrorCode & 0x00000020U) != 0) Logger_println("  HAL_ETH_ERROR_INVALID_CALLBACK: Invalid Callback error");
+
+    Logger_printf("ETH ERROR: heth->DMAErrorCode = 0x%08x\r\n", heth->DMAErrorCode);
+    if((heth->DMAErrorCode | 0x00000000U) == 0) Logger_println("  ETH_DMA_RX_NO_ERROR_FLAG");
+    if((heth->DMAErrorCode | 0x00000000U) == 0) Logger_println("  ETH_DMA_TX_NO_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00380000U) != 0) Logger_println("  ETH_DMA_RX_DESC_READ_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00300000U) != 0) Logger_println("  ETH_DMA_RX_DESC_WRITE_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00280000U) != 0) Logger_println("  ETH_DMA_RX_BUFFER_READ_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00200000U) != 0) Logger_println("  ETH_DMA_RX_BUFFER_WRITE_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00070000U) != 0) Logger_println("  ETH_DMA_TX_DESC_READ_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00060000U) != 0) Logger_println("  ETH_DMA_TX_DESC_WRITE_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00050000U) != 0) Logger_println("  ETH_DMA_TX_BUFFER_READ_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00040000U) != 0) Logger_println("  ETH_DMA_TX_BUFFER_WRITE_ERROR_FLAG");
+    if((heth->DMAErrorCode & 0x00002000U) != 0) {
+        Logger_println("  Fatal bus error");
+        if((heth->DMAErrorCode & 0x00800000U) != 0) Logger_println("    23");
+        if((heth->DMAErrorCode & 0x01000000U) != 0) Logger_println("    24");
+        if((heth->DMAErrorCode & 0x02000000U) != 0) Logger_println("    25");
+    }
+
+    /*
+    if((heth->DMAErrorCode & ETH_DMA_CONTEXT_DESC_ERROR_FLAG) != 0) Logger_println("ETH_DMA_CONTEXT_DESC_ERROR_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_FATAL_BUS_ERROR_FLAG) != 0) Logger_println("ETH_DMA_FATAL_BUS_ERROR_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_EARLY_TX_IT_FLAG) != 0) Logger_println("ETH_DMA_EARLY_TX_IT_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_RX_WATCHDOG_TIMEOUT_FLAG) != 0) Logger_println("ETH_DMA_RX_WATCHDOG_TIMEOUT_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_RX_PROCESS_STOPPED_FLAG) != 0) Logger_println("ETH_DMA_RX_PROCESS_STOPPED_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_RX_BUFFER_UNAVAILABLE_FLAG) != 0) Logger_println("ETH_DMA_RX_BUFFER_UNAVAILABLE_FLAG");
+    if((heth->DMAErrorCode & ETH_DMA_TX_PROCESS_STOPPED_FLAG) != 0) Logger_println("ETH_DMA_TX_PROCESS_STOPPED_FLAG");
+    */
+
+    Logger_printf("ETH ERROR: heth->MACErrorCode = 0x%08x\r\n", heth->MACErrorCode);
+    if((heth->MACErrorCode | 0x00000000U) == 0) Logger_println("  NO_ERROR");
+    /*
+    if((heth->MACErrorCode & ETH_RECEIVE_WATCHDOG_TIMEOUT) != 0) Logger_println("ETH_RECEIVE_WATCHDOG_TIMEOUT");
+    if((heth->MACErrorCode & ETH_EXECESSIVE_COLLISIONS) != 0) Logger_println("ETH_EXECESSIVE_COLLISIONS");
+    if((heth->MACErrorCode & ETH_LATE_COLLISIONS) != 0) Logger_println("ETH_LATE_COLLISIONS");
+    if((heth->MACErrorCode & ETH_EXECESSIVE_DEFERRAL) != 0) Logger_println("ETH_EXECESSIVE_DEFERRAL");
+    if((heth->MACErrorCode & ETH_LOSS_OF_CARRIER) != 0) Logger_println("ETH_LOSS_OF_CARRIER");
+    if((heth->MACErrorCode & ETH_NO_CARRIER) != 0) Logger_println("ETH_NO_CARRIER");
+    if((heth->MACErrorCode & ETH_TRANSMIT_JABBR_TIMEOUT) != 0) Logger_println("ETH_TRANSMIT_JABBR_TIMEOUT");
+    */
+
+    assert_param(1==0);
 }
 
 
