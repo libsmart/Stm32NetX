@@ -50,9 +50,6 @@ void NetX::networkThread() {
     // Create ip instance service
     if (ipInstance->create() == NX_SUCCESS) {
         flags.set(HAS_IP_INSTANCE);
-        // Enable link
-        // If MCU was started without LAN cable connected, link is not up
-        ipInstance->driverDirectCommand(NX_LINK_ENABLE, &actual_status);
     }
 
 
@@ -94,6 +91,18 @@ void NetX::networkThread() {
 
     // Wait until ip instance and driver is initialized
     assert_param(ipInstance->interfaceStatusCheck(NX_IP_INITIALIZE_DONE, TX_WAIT_FOREVER) == NX_SUCCESS);
+
+
+    /*
+    // Enable interface link, if not already enabled
+    // This happens,
+    if(ipInstance->interfaceStatusCheck(NX_IP_INTERFACE_LINK_ENABLED, 0) != NX_SUCCESS) {
+        // Enable link
+        // If MCU was started without LAN cable connected, link is not up
+        ipInstance->driverDirectCommand(NX_LINK_ENABLE, &actual_status);
+    }
+    */
+
 
 
     for (;;) {

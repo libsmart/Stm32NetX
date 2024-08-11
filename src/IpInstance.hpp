@@ -22,7 +22,24 @@ namespace Stm32NetX {
 
         UINT create();
 
+        ULONG getInterfaceStatus();
+
+        UINT interfaceStatusCheck(ULONG &actual_status);
+
         UINT interfaceStatusCheck(ULONG needed_status, ULONG wait_option);
+
+        /**
+         * Checks the interface status of the IP instance.
+         *
+         * @param needed_status The status that is required for the interface.
+         * @param actual_status The actual status of the interface. This parameter is updated by the method.
+         * @param wait_option The optional wait option for the status check.
+         *
+         * @return The status code of the status check. Possible values are:
+         *         - NX_SUCCESS: The status check was successful.
+         *         - Other error codes indicating failure.
+         */
+        UINT interfaceStatusCheck(ULONG needed_status, ULONG &actual_status, ULONG wait_option);
 
         UINT driverDirectCommand(UINT command, ULONG *return_value_ptr);
 

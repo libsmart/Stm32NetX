@@ -42,11 +42,26 @@ UINT IpInstance::create() {
     return ret;
 }
 
-UINT IpInstance::interfaceStatusCheck(ULONG needed_status, ULONG wait_option) {
+ULONG IpInstance::getInterfaceStatus() {
+    ULONG actual_status = 0;
+    interfaceStatusCheck(actual_status);
+    return actual_status;
+}
+
+UINT IpInstance::interfaceStatusCheck(ULONG &actual_status) {
+    return interfaceStatusCheck(0, actual_status, 0);
+}
+
+UINT IpInstance::interfaceStatusCheck(const ULONG needed_status, const ULONG wait_option) {
+    ULONG actual_status = 0;
+    return interfaceStatusCheck(needed_status, actual_status, wait_option);
+}
+
+UINT IpInstance::interfaceStatusCheck(const ULONG needed_status, ULONG &actual_status, const ULONG wait_option) {
     // log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
     // ->println("Stm32NetX::IpInstance::interfaceStatusCheck()");
 
-    ULONG actual_status;
+    // ULONG actual_status;
     // @see https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/chapter4.md#nx_ip_interface_status_check
     const auto ret = nx_ip_interface_status_check(this, 0, needed_status,
                                                   &actual_status, wait_option);

@@ -9,6 +9,7 @@
 /*                                                                        */
 /**************************************************************************/
 
+#include "Helper.hpp"
 #include "RTE_Components.h"
 #ifdef NX_ETH_INTERFACE_ENABLED
 #warning Using default eth driver nx_stm32_eth_driver.c
@@ -264,12 +265,38 @@ VOID  nx_stm32_eth_driver(NX_IP_DRIVER *driver_req_ptr)
     driver_req_ptr -> nx_ip_driver_status =  NX_UNHANDLED_COMMAND;
 
     /* Default to successful return.  */
-    driver_req_ptr -> nx_ip_driver_status =  NX_DRIVER_ERROR;
+    // driver_req_ptr -> nx_ip_driver_status =  NX_DRIVER_ERROR;
   }
 
     if(driver_req_ptr->nx_ip_driver_status != 0) {
         Logger_printf("ETH DRIVER ERROR: driver_req_ptr->nx_ip_driver_status = %d\r\n", (driver_req_ptr->nx_ip_driver_status));
+        if(driver_req_ptr->nx_ip_driver_status == NX_SUCCESS /* 0x00 */) Logger_println("  NX_SUCCESS");
+        if(driver_req_ptr->nx_ip_driver_status == NX_ALREADY_ENABLED /* 0x15 */) Logger_println("  NX_ALREADY_ENABLED");
+        if(driver_req_ptr->nx_ip_driver_status == NX_ENTRY_NOT_FOUND /* 0x16 */) Logger_println("  NX_ENTRY_NOT_FOUND");
+        if(driver_req_ptr->nx_ip_driver_status == NX_NO_MORE_ENTRIES /* 0x17 */) Logger_println("  NX_NO_MORE_ENTRIES");
+        if(driver_req_ptr->nx_ip_driver_status == NX_UNHANDLED_COMMAND /* 0x44 */) Logger_println("  NX_UNHANDLED_COMMAND");
+        if(driver_req_ptr->nx_ip_driver_status == NX_INVALID_INTERFACE /* 0x4c */) Logger_println("  NX_INVALID_INTERFACE");
+        if(driver_req_ptr->nx_ip_driver_status == NX_DRIVER_ERROR /* 0x5a */) Logger_println("  NX_DRIVER_ERROR");
+
         Logger_printf("ETH DRIVER ERROR: driver_req_ptr->nx_ip_driver_command = %d\r\n", (driver_req_ptr->nx_ip_driver_command));
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_PACKET_SEND /* 0x00 */) Logger_println("  NX_LINK_PACKET_SEND");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_INITIALIZE /* 0x01 */) Logger_println("  NX_LINK_INITIALIZE");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_ENABLE /* 0x02 */) Logger_println("  NX_LINK_ENABLE");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_DISABLE /* 0x03 */) Logger_println("  NX_LINK_DISABLE");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_PACKET_BROADCAST /* 0x04 */) Logger_println("  NX_LINK_PACKET_BROADCAST");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_ARP_SEND /* 0x05 */) Logger_println("  NX_LINK_ARP_SEND");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_ARP_RESPONSE_SEND /* 0x06 */) Logger_println("  NX_LINK_ARP_RESPONSE_SEND");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_RARP_SEND /* 0x07 */) Logger_println("  NX_LINK_RARP_SEND");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_MULTICAST_JOIN /* 0x08 */) Logger_println("  NX_LINK_MULTICAST_JOIN");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_MULTICAST_LEAVE /* 0x09 */) Logger_println("  NX_LINK_MULTICAST_LEAVE");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_GET_STATUS /*0x0a */) Logger_println("  NX_LINK_GET_STATUS");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_DEFERRED_PROCESSING /* 0x12 */) Logger_println("  NX_LINK_DEFERRED_PROCESSING");
+        if(driver_req_ptr->nx_ip_driver_command == NX_LINK_INTERFACE_ATTACH /* 0x13 */) Logger_println("  NX_LINK_INTERFACE_ATTACH");
+        if(driver_req_ptr->nx_ip_driver_command == NX_INTERFACE_CAPABILITY_GET /* 0x15 */) Logger_println("  NX_INTERFACE_CAPABILITY_GET");
+        if(driver_req_ptr->nx_ip_driver_command == NX_INTERFACE_CAPABILITY_SET /* 0x16 */) Logger_println("  NX_INTERFACE_CAPABILITY_SET");
+
+        // assert_param(1==2);
+
     }
 
 }
@@ -737,6 +764,8 @@ static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
 
     /* Link is not up, simply free the packet.  */
     nx_packet_transmit_release(driver_req_ptr -> nx_ip_driver_packet);
+
+    Logger_println("nx_stm32_eth_driver.c::_nx_driver_packet_send(): LINK IS DOWN");
     return;
   }
 
@@ -802,6 +831,7 @@ static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
   {
 
     /* This packet exceeds the size of the driver's MTU. Simply throw it away! */
+      Logger_println("nx_stm32_eth_driver.c::_nx_driver_packet_send(): packet exceeds the size of the driver's MTU");
 
     /* Remove the Ethernet header.  */
     NX_DRIVER_ETHERNET_HEADER_REMOVE(packet_ptr);
@@ -814,6 +844,10 @@ static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
     return;
   }
 
+// while (eth_handle.gState == HAL_ETH_STATE_BUSY) {
+    // delay(1);
+// }
+
   /* Transmit the packet through the Ethernet controller low level access routine. */
   status = _nx_driver_hardware_packet_send(packet_ptr);
 
@@ -822,6 +856,7 @@ static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
   {
 
     /* Driver's hardware send packet routine failed to send the packet.  */
+      Logger_println("nx_stm32_eth_driver.c::_nx_driver_packet_send(): Driver's hardware send packet routine failed to send the packet");
 
     /* Remove the Ethernet header.  */
     NX_DRIVER_ETHERNET_HEADER_REMOVE(packet_ptr);
@@ -831,6 +866,8 @@ static VOID  _nx_driver_packet_send(NX_IP_DRIVER *driver_req_ptr)
 
     /* Link is not up, simply free the packet.  */
     nx_packet_transmit_release(packet_ptr);
+
+      // assert_param(1==0);
   }
   else
   {
@@ -1632,6 +1669,7 @@ static UINT  _nx_driver_hardware_packet_send(NX_PACKET *packet_ptr)
   {
     if (i >= ETH_TX_DESC_CNT)
     {
+        Logger_println("nx_stm32_eth_driver.c::_nx_driver_hardware_packet_send(): i >= ETH_TX_DESC_CNT");
       return NX_DRIVER_ERROR;
     }
 
@@ -1677,6 +1715,7 @@ static UINT  _nx_driver_hardware_packet_send(NX_PACKET *packet_ptr)
 
   if(HAL_ETH_Transmit_IT(&eth_handle, &TxPacketCfg))
   {
+      Logger_printf("nx_stm32_eth_driver.c::_nx_driver_hardware_packet_send(): HAL_ETH_Transmit_IT() ErrorCode=0x%04x\r\n", eth_handle.ErrorCode);
     return(NX_DRIVER_ERROR);
   }
 
@@ -2046,10 +2085,10 @@ void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
 {
     Logger_printf("ETH ERROR: heth->gState = 0x%08x\r\n", heth->gState);
     if((heth->gState | 0x00000000U) == 0) Logger_println("  HAL_ETH_STATE_RESET: Peripheral not yet Initialized or disabled");
-    if((heth->gState & 0x00000010U) != 0) Logger_println("  HAL_ETH_STATE_READY: Peripheral Communication started");
-    if((heth->gState & 0x00000023U) != 0) Logger_println("  HAL_ETH_STATE_BUSY: an internal process is ongoing");
-    if((heth->gState & 0x00000023U) != 0) Logger_println("  HAL_ETH_STATE_STARTED: an internal process is started");
-    if((heth->gState & 0x000000E0U) != 0) Logger_println("  HAL_ETH_STATE_ERROR: Error State");
+    if((heth->gState & 0x00000010U) == 0x00000010U) Logger_println("  HAL_ETH_STATE_READY: Peripheral Communication started");
+    if((heth->gState & 0x00000023U) == 0x00000023U) Logger_println("  HAL_ETH_STATE_BUSY: an internal process is ongoing");
+    if((heth->gState & 0x00000023U) == 0x00000023U) Logger_println("  HAL_ETH_STATE_STARTED: an internal process is started");
+    if((heth->gState & 0x000000E0U) == 0x000000E0U) Logger_println("  HAL_ETH_STATE_ERROR: Error State");
 
     Logger_printf("ETH ERROR: heth->ErrorCode = 0x%08x\r\n", heth->ErrorCode);
     if((heth->ErrorCode | 0x00000000U) == 0) Logger_println("  HAL_ETH_ERROR_NONE: No error");
@@ -2100,7 +2139,7 @@ void HAL_ETH_ErrorCallback(ETH_HandleTypeDef *heth)
     if((heth->MACErrorCode & ETH_TRANSMIT_JABBR_TIMEOUT) != 0) Logger_println("ETH_TRANSMIT_JABBR_TIMEOUT");
     */
 
-    assert_param(1==0);
+    assert_param(heth->gState != HAL_ETH_STATE_ERROR);
 }
 
 
