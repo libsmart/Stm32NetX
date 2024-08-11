@@ -27,7 +27,10 @@
 namespace Stm32NetX {
     class NetX;
     inline NetX *NX = {};
-    inline char memPacketpool[LIBSMART_STM32NETX_PACKET_POOL_SIZE] __attribute__((section(".data")));
+    inline ULONG memPacketPool[LIBSMART_STM32NETX_PACKET_POOL_SIZE / sizeof(ULONG)] __attribute__((section(".data")));
+#ifdef NX_ENABLE_DUAL_PACKET_POOL
+    inline ULONG memPacketPoolAux[LIBSMART_STM32NETX_PACKET_POOL_AUX_SIZE / sizeof(ULONG)] __attribute__((section(".data")));
+#endif
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
     inline char memDhcp[sizeof(Dhcp)] __attribute__((section(".data")));
 #endif
@@ -78,6 +81,8 @@ namespace Stm32NetX {
             // assert_param(flags.create() == TX_SUCCESS);
 
             packetPool = new(bytePool.allocate(sizeof(PacketPool))) PacketPool(*this);
+
+            packetPoolAux = new(bytePool.allocate(sizeof(PacketPool))) PacketPool(*this);
 
             ipInstance = new(bytePool.allocate(sizeof(IpInstance))) IpInstance(*this, *packetPool);
 
@@ -158,6 +163,7 @@ namespace Stm32NetX {
         TX_BYTE_POOL *byte_pool;
         static Stm32ThreadX::BytePool bytePool;
         PacketPool *packetPool;
+        PacketPool *packetPoolAux;
         IpInstance *ipInstance;
         Arp *arp;
         Icmp *icmp;

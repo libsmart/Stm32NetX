@@ -42,7 +42,8 @@ void NetX::networkThread() {
 
 
     // Create packet pool service
-    if (packetPool->create() == NX_SUCCESS) {
+    packetPool->setName("Stm32NetX::PacketPool");
+    if (packetPool->create(LIBSMART_STM32NETX_PAYLOAD_SIZE, memPacketPool, LIBSMART_STM32NETX_PACKET_POOL_SIZE) == NX_SUCCESS) {
         flags.set(HAS_PACKET_POOL);
     }
 
@@ -51,6 +52,18 @@ void NetX::networkThread() {
     if (ipInstance->create() == NX_SUCCESS) {
         flags.set(HAS_IP_INSTANCE);
     }
+
+
+#ifdef NX_ENABLE_DUAL_PACKET_POOL
+    // Create packet pool service
+    packetPoolAux->setName("Stm32NetX::PacketPoolAux");
+    if (packetPoolAux->create(LIBSMART_STM32NETX_PAYLOAD_AUX_SIZE, memPacketPoolAux, LIBSMART_STM32NETX_PACKET_POOL_AUX_SIZE) == NX_SUCCESS) {
+        flags.set(HAS_PACKET_POOL);
+    }
+
+    const auto ret = nx_ip_auxiliary_packet_pool_set(ipInstance, packetPoolAux);
+    assert_param(ret == NX_SUCCESS);
+#endif
 
 
     // Enable arp service

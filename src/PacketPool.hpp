@@ -8,18 +8,20 @@
 
 #include <libsmart_config.hpp>
 #include "Loggable.hpp"
+#include "Nameable.hpp"
 #include "nx_api.h"
 
 namespace Stm32NetX {
     class NetX;
 
-    class PacketPool : public Stm32ItmLogger::Loggable, public NX_PACKET_POOL {
+    class PacketPool : public Stm32Common::Nameable, public Stm32ItmLogger::Loggable, public NX_PACKET_POOL {
     public:
         PacketPool() = delete;
 
         explicit PacketPool(NetX &NX);
 
-        UINT create();
+        // UINT create();
+        UINT create(ULONG payload_size, ULONG *packetPoolMemory, size_t packetPoolMemorySize);
 
     protected:
         NetX &NX;
