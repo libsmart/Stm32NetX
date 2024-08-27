@@ -9,8 +9,18 @@
 #define LIBSMART_STM32NETX
 
 #include <main.h>
-#include "nx_user.h"
-#include "nx_api.h"
+#include <nx_user.h>
+#include <nx_api.h>
+
+#include <nx_secure_tls_api.h>
+#ifdef nx_secure_tls_initialize
+#define LIBSMART_STM32NETX_ENABLE_TLS
+#endif
+
+#include <nxd_dns.h>
+#ifdef NX_DNS_SUCCESS
+#define LIBSMART_STM32NETX_ENABLE_DNS
+#endif
 
 #define LIBSMART_STM32NETX_DEFAULT_MEMORY_SIZE 1024
 #define LIBSMART_STM32NETX_DEFAULT_PRIORITY 10
@@ -43,8 +53,6 @@
 #define LIBSMART_STM32NETX_ENABLE_DHCP
 // #undef LIBSMART_STM32NETX_ENABLE_DHCP
 
-#define LIBSMART_STM32NETX_ENABLE_DNS
-#undef LIBSMART_STM32NETX_ENABLE_DNS
 
 
 #endif

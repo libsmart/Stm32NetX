@@ -4,7 +4,6 @@
  */
 
 #include <libsmart_config.hpp>
-
 #ifdef LIBSMART_STM32NETX_ENABLE_DNS
 
 #include "Dns.hpp"

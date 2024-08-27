@@ -9,7 +9,6 @@
 #include "Address.hpp"
 #include "Loggable.hpp"
 #include "Nameable.hpp"
-#include "nxd_dns.h"
 
 namespace Stm32NetX {
     class Dns : protected NX_DNS, public Stm32ItmLogger::Loggable, public Stm32Common::Nameable {
