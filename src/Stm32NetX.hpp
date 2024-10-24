@@ -130,6 +130,7 @@ namespace Stm32NetX {
          */
         void begin();
 
+        void restart();
 
         [[noreturn]] void networkThread();
 

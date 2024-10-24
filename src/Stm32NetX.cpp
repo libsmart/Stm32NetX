@@ -22,6 +22,16 @@ void NetX::begin() {
     resume();
 }
 
+void NetX::restart() {
+    ULONG actual_status;
+#ifdef LIBSMART_STM32NETX_ENABLE_DHCP
+    dhcp->stop();
+#endif
+    getIpInstance()->driverDirectCommand(NX_LINK_DISABLE, &actual_status);
+    getIpInstance()->ipAddressSet(0,0);
+    getIpInstance()->ipGatewayAddressClear();
+}
+
 void NetX::networkThread() {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::NetX::networkThread()");
@@ -195,7 +205,12 @@ void NetX::networkThread() {
             // Set static ip
             if (!getConfig()->dhcp) {
                 ipInstance->ipAddressSet(getConfig()->ip_address, getConfig()->network_mask);
-                ipInstance->ipGatewayAddressSet(getConfig()->gateway_address);
+
+                if(getConfig()->gateway_address == 0) {
+                    ipInstance->ipGatewayAddressClear();
+                } else {
+                    ipInstance->ipGatewayAddressSet(getConfig()->gateway_address);
+                }
             }
 
             tx_thread_sleep(LIBSMART_STM32NETX_NETX_DHCP_WAIT_TIME);
