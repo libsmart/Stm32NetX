@@ -17,7 +17,6 @@
 #include "Udp.hpp"
 #include "IpInstance.hpp"
 #include "PacketPool.hpp"
-#include "globals.hpp"
 #include "Helper.hpp"
 #include "Loggable.hpp"
 #include "Thread.hpp"
@@ -51,6 +50,7 @@ namespace Stm32NetX {
         friend IpInstance;
         friend Arp;
 
+    public:
         using Flags = enum {
             NONE = 0,
             HAS_LINK = 1 << 0,
@@ -65,7 +65,6 @@ namespace Stm32NetX {
             THE_END = 1 << 31
         };
 
-    public:
         explicit NetX(TX_BYTE_POOL *byte_pool)
             : NetX(byte_pool, getLogger()) { ; }
 
