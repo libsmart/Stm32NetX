@@ -104,6 +104,18 @@ void NetX::networkThread() {
 #endif
 
 
+    // Create dns service
+#ifdef LIBSMART_STM32NETX_ENABLE_DNS
+    if(dns != nullptr) {
+        dns->setLogger(getLogger());
+        dns->setName(getConfig()->hostname);
+        if(dns->create() == NX_SUCCESS) {
+            flags.set(HAS_DNS_ENABLED);
+        }
+    }
+#endif
+
+
     // Create dhcp service
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
     if (dhcp != nullptr && dhcp->create() == NX_SUCCESS) {
@@ -172,6 +184,11 @@ void NetX::networkThread() {
                                  (ip >> 0) & 0xff,
                                  ipInstance->ipMaskCidrGet()
                         );
+
+                Address ipAddress;
+                ipAddress.nxd_ip_version = NX_IP_VERSION_V4;
+                ipAddress.nxd_ip_address.v4 = Stm32NetX::NX->getIpInstance()->ipGatewayAddressGet();
+                dns->serverAdd(&ipAddress);
             }
             ipState = IP_SET;
             flags.isSet(HAS_IP) ? (void) 0 : (void) flags.set(HAS_IP);

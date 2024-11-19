@@ -15,6 +15,7 @@
 #include "Icmp.hpp"
 #include "Tcp.hpp"
 #include "Udp.hpp"
+#include "Dns/Dns.hpp"
 #include "IpInstance.hpp"
 #include "PacketPool.hpp"
 #include "Helper.hpp"
@@ -62,6 +63,7 @@ namespace Stm32NetX {
             HAS_UDP_ENABLED = 1 << 6,
             HAS_TCP_ENABLED = 1 << 7,
             HAS_DHCP_ENABLED = 1 << 8,
+            HAS_DNS_ENABLED = 1 << 9,
             THE_END = 1 << 31
         };
 
@@ -95,6 +97,10 @@ namespace Stm32NetX {
 
 #ifdef NX_IP_TCP_ENABLED
             tcp = new(bytePool.allocate(sizeof(Tcp))) Tcp(*this, *ipInstance);
+#endif
+
+#ifdef LIBSMART_STM32NETX_ENABLE_DNS
+            dns = new(bytePool.allocate(sizeof(Dns))) Dns();
 #endif
 
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
@@ -144,6 +150,10 @@ namespace Stm32NetX {
             return ipInstance;
         }
 
+        [[nodiscard]] virtual Dns *getDns() const {
+            return dns;
+        }
+
         UINT waitForIpInstance();
 
         UINT waitForPacketPool();
@@ -173,10 +183,12 @@ namespace Stm32NetX {
 #ifdef NX_IP_TCP_ENABLED
         Tcp *tcp = {};
 #endif
+#ifdef LIBSMART_STM32NETX_ENABLE_DNS
+        Dns *dns = {};
+#endif
 #ifdef LIBSMART_STM32NETX_ENABLE_DHCP
         Dhcp *dhcp = {};
 #endif
-
     public:
         static UINT setup(TX_BYTE_POOL *byte_pool) {
             Stm32ItmLogger::logger.setSeverity(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
