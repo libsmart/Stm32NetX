@@ -106,9 +106,9 @@ namespace Stm32NetX {
         UINT data_retrieve(VOID *buffer_start, ULONG *bytes_copied);
 
         /**
-         * @brief Retrieves the length of the packet.
+         * @brief Get length of packet data.
          *
-         * This function calls the NetX function to obtain the length of the packet and logs the operation.
+         * This function calls the NetX function to obtain the length of the packet data.
          *
          * @param length Pointer to a variable where the packet length will be stored.
          * @return A status code indicating the success or failure of the operation.
