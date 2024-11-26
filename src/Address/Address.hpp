@@ -3,20 +3,15 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-#ifndef LIBSMART_STM32NETX_ADDRESS_HPP
-#define LIBSMART_STM32NETX_ADDRESS_HPP
+#pragma once
 
 #include "Loggable.hpp"
 #include "nx_api.h"
 
 namespace Stm32NetX {
-    class Address : public Stm32ItmLogger::Loggable, public NXD_ADDRESS {
+    class Address : public NXD_ADDRESS {
     public:
         Address() = default;
-
-        explicit Address(Stm32ItmLogger::LoggerInterface *logger)
-            : Loggable(logger), NXD_ADDRESS_STRUCT() {
-        }
 
         Address(
             const uint8_t ipByte1,
@@ -28,37 +23,25 @@ namespace Stm32NetX {
             nxd_ip_address.v4 = IP_ADDRESS(ipByte1, ipByte2, ipByte3, ipByte4);
         }
 
-        Address(const Address &other)
-            : Stm32ItmLogger::Loggable(other),
-              NXD_ADDRESS(other) { ; }
-
         explicit Address(NXD_ADDRESS *other)
             : NXD_ADDRESS(*other) { ; }
 
         Address(Address &&other) noexcept
-            : Stm32ItmLogger::Loggable(std::move(other)),
-              NXD_ADDRESS(std::move(other)) {
-        }
+            : NXD_ADDRESS(std::move(other)) { ; }
 
         Address &operator=(const Address &other) {
-            if (this == &other)
-                return *this;
-            Stm32ItmLogger::Loggable::operator =(other);
+            if (this == &other) return *this;
             NXD_ADDRESS::operator =(other);
             return *this;
         }
 
         Address &operator=(Address &&other) noexcept {
-            if (this == &other)
-                return *this;
-            Stm32ItmLogger::Loggable::operator =(std::move(other));
+            if (this == &other) return *this;
             NXD_ADDRESS::operator =(std::move(other));
             return *this;
         }
 
         Address &operator=(const char *str) {
-            log()->printf("%s\r\n", str);
-
             this->nxd_ip_version = 0;
             this->nxd_ip_address.v4 = 0;
 
@@ -83,7 +66,7 @@ namespace Stm32NetX {
 
             if (this->nxd_ip_version == NX_IP_VERSION_V6) {
 #ifdef FEATURE_NX_IPV6
-                if(this->nxd_ip_address.v6 != other.nxd_ip_address.v6) return false;
+                if (this->nxd_ip_address.v6 != other.nxd_ip_address.v6) return false;
 #else
                 return false;
 #endif
@@ -96,4 +79,3 @@ namespace Stm32NetX {
         }
     };
 }
-#endif //LIBSMART_STM32NETX_ADDRESS_HPP

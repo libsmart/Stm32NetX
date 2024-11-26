@@ -6,7 +6,7 @@
 #ifndef LIBSMART_STM32NETX_DNS_DNS_HPP
 #define LIBSMART_STM32NETX_DNS_DNS_HPP
 
-#include "Address.hpp"
+#include "Address/Address.hpp"
 #include "Loggable.hpp"
 #include "Nameable.hpp"
 
