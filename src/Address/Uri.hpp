@@ -353,6 +353,36 @@ namespace Stm32NetX {
             return m_fragment;
         };
 
+
+        /**
+         * Constructs and retrieves the resource part of the URI.
+         * The resource includes the path, and optionally the query and fragment components.
+         * If the path is rooted, it is prepended with a forward slash.
+         *
+         * @return A string representing the full resource of the URI, including the path, and optionally the query and fragment.
+         */
+        std::string get_resource() const {
+            std::string full_resource;
+
+            if (m_path_is_rooted) {
+                full_resource.append("/");
+            }
+            full_resource.append(m_path);
+
+            if (!m_query.empty()) {
+                full_resource.append("?");
+                full_resource.append(m_query);
+            }
+
+            if (!m_fragment.empty()) {
+                full_resource.append("#");
+                full_resource.append(m_fragment);
+            }
+
+            return full_resource;
+        }
+
+
         /**
          * Converts the URI components into a full URI string representation.
          *
@@ -385,21 +415,7 @@ namespace Stm32NetX {
                 full_uri.append(m_content);
             }
 
-            if (m_path_is_rooted) {
-                full_uri.append("/");
-            }
-            full_uri.append(m_path);
-
-            if (!m_query.empty()) {
-                full_uri.append("?");
-                full_uri.append(m_query);
-            }
-
-            if (!m_fragment.empty()) {
-                full_uri.append("#");
-                full_uri.append(m_fragment);
-            }
-
+            full_uri.append(get_resource());
             return full_uri;
         };
 
