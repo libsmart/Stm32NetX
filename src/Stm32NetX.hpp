@@ -11,7 +11,7 @@
 #include "Arp.hpp"
 #include "BytePool.hpp"
 #include "Dhcp.hpp"
-#include "EventFlags.hpp"
+#include "EventFlags/EventFlags.hpp"
 #include "Icmp.hpp"
 #include "Tcp.hpp"
 #include "Udp.hpp"
@@ -79,7 +79,7 @@ namespace Stm32NetX {
                     ->println("Stm32NetX::NetX::NetX()");
             bytePool.setLogger(getLogger());
 
-            // assert_param(flags.create() == TX_SUCCESS);
+            flags.create();
 
             packetPool = new(bytePool.allocate(sizeof(PacketPool))) PacketPool(*this);
 
