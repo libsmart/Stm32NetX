@@ -18,9 +18,11 @@ namespace Stm32NetX {
             const uint8_t ipByte2,
             const uint8_t ipByte3,
             const uint8_t ipByte4
-        ) : NXD_ADDRESS_STRUCT() {
+        ) : Address(IP_ADDRESS(ipByte1, ipByte2, ipByte3, ipByte4)) { ; }
+
+        explicit Address(const ULONG addr) : NXD_ADDRESS_STRUCT() {
             nxd_ip_version = NX_IP_VERSION_V4;
-            nxd_ip_address.v4 = IP_ADDRESS(ipByte1, ipByte2, ipByte3, ipByte4);
+            nxd_ip_address.v4 = addr;
         }
 
         explicit Address(NXD_ADDRESS *other)
