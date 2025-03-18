@@ -21,6 +21,8 @@ namespace Stm32NetX {
 
         UINT serverAdd(NXD_ADDRESS *server_address);
 
+        UINT serverGet(UINT index, NXD_ADDRESS *dns_server_address);
+
         UINT hostByNameGet(CHAR *host_name,
                            NXD_ADDRESS *host_address_ptr,
                            ULONG wait_option,

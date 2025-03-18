@@ -55,6 +55,19 @@ UINT Dns::serverAdd(NXD_ADDRESS *server_address) {
     return ret;
 }
 
+UINT Dns::serverGet(UINT index, NXD_ADDRESS *dns_server_address) {
+    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+            ->println("Stm32NetX::Dns::serverGet()");
+
+    // @see https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/netx-duo-dns/chapter3.md#nxd_dns_server_get
+    const auto ret = nxd_dns_server_get(this, index, dns_server_address);
+    if (ret != NX_SUCCESS) {
+        log(Stm32ItmLogger::LoggerInterface::Severity::ERROR)
+                ->printf("Stm32NetX::Dns: nxd_dns_server_get() = 0x%02x\r\n", ret);
+    }
+    return ret;
+}
+
 UINT Dns::hostByNameGet(CHAR *host_name, NXD_ADDRESS *host_address_ptr, ULONG wait_option, UINT lookup_type) {
     log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
             ->println("Stm32NetX::Dns::hostByNameGet()");
