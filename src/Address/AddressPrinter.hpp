@@ -36,7 +36,7 @@ namespace Stm32NetX {
          * @return The number of bytes written.
          */
         size_t printTo(Stm32Common::PrintInterface &printObject) const override {
-            return printObject.print(reinterpret_cast<const char *>(this));
+            return printObject.print(ipAsString);
         }
 
         /**
