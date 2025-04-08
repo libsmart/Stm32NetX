@@ -91,6 +91,23 @@ namespace Stm32NetX {
             );
             return (it != errorMappings.end()) ? it->second : "UNKNOWN";
         };
+
+        static constexpr std::array<std::pair<UINT, const char *>, 1> errorMappingsPretty{
+            {
+                {NX_NOT_CONNECTED, "Keine Verbindung"}
+            }
+        };
+
+        static const char *getPrettyErrorString(UINT errorCode) {
+            const auto it = std::find_if(
+                errorMappingsPretty.begin(),
+                errorMappingsPretty.end(),
+                [code = errorCode](const std::pair<UINT, const char *> &element) {
+                    return element.first == code;
+                }
+            );
+            return (it != errorMappingsPretty.end()) ? it->second : "Unbekannte Fehlermeldung";
+        };
     };
 
 #if __EXCEPTIONS
@@ -113,9 +130,22 @@ throw Stm32NetX::NetXRuntimeException(buffer, ret);                     \
 
         [[nodiscard]] virtual UINT getErrorCode() const { return errorCode; }
 
+        [[nodiscard]] const char *what() const noexcept override;
+
     private:
         const UINT errorCode;
     };
+
+    inline const char *NetXRuntimeException::what() const noexcept {
+        const auto it = std::find_if(
+            NetXApiReturnValues::errorMappingsPretty.begin(),
+            NetXApiReturnValues::errorMappingsPretty.end(),
+            [code = errorCode](const std::pair<UINT, const char *> &element) {
+                return element.first == code;
+            }
+        );
+        return (it != NetXApiReturnValues::errorMappingsPretty.end()) ? it->second : runtime_error::what();
+    }
 
 
 #else
