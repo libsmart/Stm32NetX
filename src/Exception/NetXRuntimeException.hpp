@@ -4,6 +4,7 @@
  */
 
 #pragma once
+#include "I18N/gettext_map.hpp"
 
 extern "C" {
 #include "nx_api.h"
@@ -89,12 +90,13 @@ namespace Stm32NetX {
                     return element.first == code;
                 }
             );
-            return (it != errorMappings.end()) ? it->second : "UNKNOWN";
+            return (it != errorMappings.end()) ? it->second : AppCore::I18N::UNKNOWN_ERROR_STRING;
         };
 
         static constexpr std::array<std::pair<UINT, const char *>, 1> errorMappingsPretty{
             {
-                {NX_NOT_CONNECTED, "Keine Verbindung"}
+                {NX_SUCCESS, "NX_SUCCESS"},
+                //{NX_NOT_CONNECTED, "Not connected"}
             }
         };
 
@@ -106,7 +108,7 @@ namespace Stm32NetX {
                     return element.first == code;
                 }
             );
-            return (it != errorMappingsPretty.end()) ? it->second : "Unbekannte Fehlermeldung";
+            return (it != errorMappingsPretty.end()) ? it->second : AppCore::I18N::UNKNOWN_ERROR_STRING;
         };
     };
 
@@ -130,11 +132,24 @@ throw Stm32NetX::NetXRuntimeException(buffer, ret);                     \
 
         [[nodiscard]] virtual UINT getErrorCode() const { return errorCode; }
 
+        [[nodiscard]] virtual const char *getErrorString() const noexcept;
+
         [[nodiscard]] const char *what() const noexcept override;
 
     private:
         const UINT errorCode;
     };
+
+    inline const char *NetXRuntimeException::getErrorString() const noexcept {
+        const auto it = std::find_if(
+            NetXApiReturnValues::errorMappings.begin(),
+            NetXApiReturnValues::errorMappings.end(),
+            [code = errorCode](const std::pair<UINT, const char *> &element) {
+                return element.first == code;
+            }
+        );
+        return (it != NetXApiReturnValues::errorMappings.end()) ? it->second : runtime_error::what();
+    }
 
     inline const char *NetXRuntimeException::what() const noexcept {
         const auto it = std::find_if(
