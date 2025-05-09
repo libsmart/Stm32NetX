@@ -16,11 +16,15 @@ namespace Stm32NetX {
     public:
         Packet() = default;
 
-        explicit Packet(NX_PACKET *nx_packet)
-            : BasePacket(nx_packet) { ; }
+        explicit Packet(NX_PACKET *nx_packet) : BasePacket(nx_packet) { ; }
+
+        explicit Packet(NX_PACKET &nx_packet) : BasePacket(&nx_packet) { ; }
 
         Packet(NX_PACKET *nx_packet, Stm32ItmLogger::LoggerInterface *logger)
             : BasePacket(nx_packet, logger) { ; }
+
+        Packet(NX_PACKET &nx_packet, Stm32ItmLogger::LoggerInterface *logger)
+            : BasePacket(&nx_packet, logger) { ; }
 
         explicit operator NX_PACKET *() { return getNxPacket(); }
 
