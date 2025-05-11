@@ -25,6 +25,7 @@
 #include "tx_api.h"
 
 namespace Stm32NetX {
+    constexpr char COMPONENT_NAME[] = "Stm32NetX";
     class NetX;
     inline NetX *NX = {};
     inline ULONG memPacketPool[LIBSMART_STM32NETX_PACKET_POOL_SIZE / sizeof(ULONG)] __attribute__((section(".data")));
