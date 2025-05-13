@@ -4,7 +4,7 @@
  */
 
 #include "X509.hpp"
-#ifdef NX_SECURE_ENABLE
+#ifdef LIBSMART_STM32NETX_ENABLE_TLS
 
 UINT Stm32NetX::Secure::X509::certificateInitialize(const UCHAR *certificate_data, USHORT certificate_data_length,
                                                     UCHAR *raw_data_buffer, USHORT buffer_size,
