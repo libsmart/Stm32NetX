@@ -54,6 +54,10 @@ throw Stm32NetX::NetXRuntimeException(buffer, ret);                     \
         return (it != NetXApiReturnValues::errorMappings.end()) ? it->second : runtime_error::what();
     }
 
+    inline const char * NetXRuntimeException::what() const noexcept {
+        return runtime_error::what();
+    }
+
 
 #else
 #define LIBSMART_HANDLE_ERROR(ret, fmt, ...)                                          \

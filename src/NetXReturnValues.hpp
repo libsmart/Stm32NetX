@@ -9,6 +9,7 @@
 #include <optional>
 #include <variant>
 #include "Hash/Fnv1a.hpp"
+#include "I18N/gettext_map.hpp"
 
 extern "C" {
 #include "nx_api.h"
@@ -677,6 +678,35 @@ namespace Stm32NetX {
                 {NX_CONTINUE, "NX_CONTINUE"},
                 {NX_TCPIP_OFFLOAD_ERROR, "NX_TCPIP_OFFLOAD_ERROR}"}
             }
+        };
+
+        static const char *getErrorString(UINT errorCode) {
+            const auto it = std::find_if(
+                errorMappings.begin(),
+                errorMappings.end(),
+                [code = errorCode](const std::pair<UINT, const char *> &element) {
+                    return element.first == code;
+                }
+            );
+            return (it != errorMappings.end()) ? it->second : AppCore::I18N::UNKNOWN_ERROR_STRING;
+        };
+
+        static constexpr std::array<std::pair<UINT, const char *>, 1> errorMappingsPretty{
+                {
+                    {NX_SUCCESS, "NX_SUCCESS"},
+                    //{NX_NOT_CONNECTED, "Not connected"}
+                }
+        };
+
+        static const char *getPrettyErrorString(UINT errorCode) {
+            const auto it = std::find_if(
+                errorMappingsPretty.begin(),
+                errorMappingsPretty.end(),
+                [code = errorCode](const std::pair<UINT, const char *> &element) {
+                    return element.first == code;
+                }
+            );
+            return (it != errorMappingsPretty.end()) ? it->second : AppCore::I18N::UNKNOWN_ERROR_STRING;
         };
     };
 }
