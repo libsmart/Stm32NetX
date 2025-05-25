@@ -10,6 +10,7 @@
 #include "BasePacket.hpp"
 #include "nx_api.h"
 #include "PacketPool.hpp"
+#include "String/FixedString.hpp"
 
 namespace Stm32NetX {
     class Packet : public BasePacket, public Stm32Common::Print {
@@ -54,8 +55,44 @@ namespace Stm32NetX {
          * @param data_size Size of the data to be appended in bytes.
          * @return UINT Status of the data append operation, with NX_SUCCESS indicating success and other values indicating failure.
          */
-        UINT dataAppend(VOID *data_start, ULONG data_size);
+        UINT dataAppend(const uint8_t *data_start, ULONG data_size);
 
+
+        /**
+         * Appends a null-terminated character array to an existing packet.
+         *
+         * @tparam N The size of the character array, including the null terminator.
+         * @param data A reference to the character array to be appended.
+         * @return UINT Status of the append operation, with NX_SUCCESS indicating success and other values indicating failure.
+         */
+        template<size_t N>
+        UINT dataAppend(const char (&data)[N] ) {
+            return dataAppend(static_cast<const uint8_t *>(data), N  - 1);
+        }
+
+        /**
+         * Appends a fixed-size array of data to the packet.
+         *
+         * @tparam N The size of the array to be appended.
+         * @param data A reference to the fixed-size array containing the data to append.
+         * @return UINT The result of the append operation, with NX_SUCCESS indicating success and other values indicating failure.
+         */
+        template<size_t N>
+        UINT dataAppend(const uint8_t (&data)[N] ) {
+            return dataAppend(data, N);
+        }
+
+        /**
+         * Appends the contents of a fixed-size string to the packet.
+         *
+         * @tparam N The maximum size of the fixed-size string, including the null terminator.
+         * @param str A reference to the fixed-size string to be appended.
+         * @return UINT The result of the append operation, with NX_SUCCESS indicating success, and other values indicating failure.
+         */
+        template<size_t N>
+        UINT dataAppend(const Stm32Common::String::FixedString<N> &str) {
+            return dataAppend(reinterpret_cast<const uint8_t *>(str.c_str()), str.size());
+        }
 
         /**
          * Retrieves the length of the packet.

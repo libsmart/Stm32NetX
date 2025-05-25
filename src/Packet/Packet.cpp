@@ -8,8 +8,8 @@
 
 using namespace Stm32NetX;
 
-UINT Packet::dataAppend(void *data_start, ULONG data_size) {
-    return BasePacket::data_append(data_start, data_size, getPacketPool(), waitOption);
+UINT Packet::dataAppend(const uint8_t *data_start, const ULONG data_size) {
+    return BasePacket::data_append((void *)(data_start), data_size, getPacketPool(), waitOption);
 }
 
 ULONG Packet::lengthGet() {

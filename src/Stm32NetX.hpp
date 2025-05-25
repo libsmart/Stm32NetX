@@ -28,7 +28,7 @@ namespace Stm32NetX {
     constexpr char COMPONENT_NAME[] = "Stm32NetX";
     class NetX;
     inline NetX *NX = {};
-    inline ULONG memPacketPool[LIBSMART_STM32NETX_PACKET_POOL_SIZE / sizeof(ULONG)] __attribute__((section(".data")));
+    inline ULONG memPacketPool[LIBSMART_STM32NETX_PACKET_POOL_SIZE / sizeof(ULONG)] __attribute__((section(".extram")));
 #ifdef NX_ENABLE_DUAL_PACKET_POOL
     inline ULONG memPacketPoolAux[LIBSMART_STM32NETX_PACKET_POOL_AUX_SIZE / sizeof(ULONG)] __attribute__((section(".data")));
 #endif
