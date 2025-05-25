@@ -26,6 +26,9 @@ namespace Stm32NetX {
         explicit AddressWriter(Address &address)
             : Address(&address) { updateString(); }
 
+        explicit AddressWriter(const Address &address)
+            : Address(const_cast<Address *>(&address)) { updateString(); }
+
         /**
          * @brief Prints the object by casting it to a const char pointer.
          *
