@@ -26,6 +26,7 @@ namespace Stm32NetX {
                       const char *FUNCTION_NAME, const char *message)
             : LibsmartException(COMPONENT_NAME, CLASS_NAME, INSTANCE_NAME, FUNCTION_NAME, message) { ; }
 
+        auto res() const { return nxRes; }
 
         size_t printTo(Stm32Common::PrintInterface &printObject) const override {
             return printObject.print(nxRes);
