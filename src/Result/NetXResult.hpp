@@ -6,8 +6,8 @@
 #pragma once
 #include "NetXReturnValues.hpp"
 #include "Result.hpp"
-#include "Result/Result.hpp"
+#include "Result/PrintableResult.hpp"
 
 namespace Stm32NetX {
-    using nxResult_t = Stm32Common::Result<void, Stm32NetX::NetXResult>;
+    using nxResult_t = PrintableResult<void, Stm32NetX::NetXResult>;
 }
