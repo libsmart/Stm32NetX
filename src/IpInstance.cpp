@@ -193,3 +193,15 @@ UINT IpInstance::ipGatewayAddressSet(ULONG ip_address) {
     }
     return ret;
 }
+
+UINT IpInstance::ipInfoGet(ipInfoStruct &info) {
+    // log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
+    // ->println("Stm32NetX::IpInstance::ipInfoGet()");
+
+    return nx_ip_info_get(this,
+                          &info.ip_total_packets_sent, &info.ip_total_bytes_sent,
+                          &info.ip_total_packets_received, &info.ip_total_bytes_received,
+                          &info.ip_invalid_packets, &info.ip_receive_packets_dropped,
+                          &info.ip_receive_checksum_errors, &info.ip_send_packets_dropped,
+                          &info.ip_total_fragments_sent, &info.ip_total_fragments_received);
+}

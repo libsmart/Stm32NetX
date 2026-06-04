@@ -61,6 +61,15 @@ namespace Stm32NetX {
 
         UINT ipGatewayAddressSet(ULONG ip_address);
 
+        using ipInfoStruct = struct ipInfoStruct {
+            ULONG ip_total_packets_sent, ip_total_bytes_sent, ip_total_packets_received, ip_total_bytes_received,
+                    ip_invalid_packets, ip_receive_packets_dropped, ip_receive_checksum_errors,
+                    ip_send_packets_dropped,
+                    ip_total_fragments_sent, ip_total_fragments_received;
+        };
+
+        UINT ipInfoGet(ipInfoStruct &info);
+
     protected:
         NetX &NX;
         PacketPool &packetPool;
