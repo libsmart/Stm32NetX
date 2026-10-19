@@ -434,6 +434,22 @@ namespace Stm32NetX {
             static constexpr UINT apiReturnValue = NX_TCPIP_OFFLOAD_ERROR;
         };
 
+#if defined(LIBSMART_STM32NETX_ENABLE_TLS) && defined(NX_WEB_HTTPS_ENABLE)
+        // Appli/Middlewares/ST/netxduo/nx_secure/inc/nx_secure_tls.h
+        struct SECURE_TLS_ALERT_RECEIVED {
+            LIBSMART_CONSTEXPR_CHAR(name, "NX_SECURE_TLS_ALERT_RECEIVED");
+            static constexpr FNV1a::fnv1a32_t strHash = FNV1a::hash("NX_SECURE_TLS_ALERT_RECEIVED");
+            static constexpr UINT apiReturnValue = NX_SECURE_TLS_ALERT_RECEIVED;
+        };
+
+        // Appli/Middlewares/ST/netxduo/nx_secure/inc/nx_secure_x509.h
+        struct SECURE_X509_CHAIN_VERIFY_FAILURE {
+            LIBSMART_CONSTEXPR_CHAR(name, "NX_SECURE_X509_CHAIN_VERIFY_FAILURE");
+            static constexpr FNV1a::fnv1a32_t strHash = FNV1a::hash("NX_SECURE_X509_CHAIN_VERIFY_FAILURE");
+            static constexpr UINT apiReturnValue = NX_SECURE_X509_CHAIN_VERIFY_FAILURE;
+        };
+#endif
+
         using Variant = std::variant<
             NONE,
             SUCCESS,
@@ -501,6 +517,10 @@ namespace Stm32NetX {
             OPTION_HEADER_ERROR,
             CONTINUE,
             TCPIP_OFFLOAD_ERROR
+#if defined(LIBSMART_STM32NETX_ENABLE_TLS) && defined(NX_WEB_HTTPS_ENABLE)
+        ,SECURE_TLS_ALERT_RECEIVED
+        ,SECURE_X509_CHAIN_VERIFY_FAILURE
+#endif
         >;
 
 
@@ -610,74 +630,82 @@ namespace Stm32NetX {
 
 
     struct NetXApiReturnValues {
-        static constexpr std::array<std::pair<UINT, const char *>, 65> errorMappings{
-            {
-                {NX_SUCCESS, "NX_SUCCESS"},
-                {NX_NO_PACKET, "NX_NO_PACKET"},
-                {NX_UNDERFLOW, "NX_UNDERFLOW"},
-                {NX_OVERFLOW, "NX_OVERFLOW"},
-                {NX_NO_MAPPING, "NX_NO_MAPPING"},
-                {NX_DELETED, "NX_DELETED"},
-                {NX_POOL_ERROR, "NX_POOL_ERROR"},
-                {NX_PTR_ERROR, "NX_PTR_ERROR"},
-                {NX_WAIT_ERROR, "NX_WAIT_ERROR"},
-                {NX_SIZE_ERROR, "NX_SIZE_ERROR"},
-                {NX_OPTION_ERROR, "NX_OPTION_ERROR"},
-                {NX_DELETE_ERROR, "NX_DELETE_ERROR"},
-                {NX_CALLER_ERROR, "NX_CALLER_ERROR"},
-                {NX_INVALID_PACKET, "NX_INVALID_PACKET"},
-                {NX_INVALID_SOCKET, "NX_INVALID_SOCKET"},
-                {NX_NOT_ENABLED, "NX_NOT_ENABLED"},
-                {NX_ALREADY_ENABLED, "NX_ALREADY_ENABLED"},
-                {NX_ENTRY_NOT_FOUND, "NX_ENTRY_NOT_FOUND"},
-                {NX_NO_MORE_ENTRIES, "NX_NO_MORE_ENTRIES"},
-                {NX_ARP_TIMER_ERROR, "NX_ARP_TIMER_ERROR"},
-                {NX_RESERVED_CODE0, "NX_RESERVED_CODE0"},
-                {NX_WAIT_ABORTED, "NX_WAIT_ABORTED"},
-                {NX_IP_INTERNAL_ERROR, "NX_IP_INTERNAL_ERROR"},
-                {NX_IP_ADDRESS_ERROR, "NX_IP_ADDRESS_ERROR"},
-                {NX_ALREADY_BOUND, "NX_ALREADY_BOUND"},
-                {NX_PORT_UNAVAILABLE, "NX_PORT_UNAVAILABLE"},
-                {NX_NOT_BOUND, "NX_NOT_BOUND"},
-                {NX_RESERVED_CODE1, "NX_RESERVED_CODE1"},
-                {NX_SOCKET_UNBOUND, "NX_SOCKET_UNBOUND"},
-                {NX_NOT_CREATED, "NX_NOT_CREATED"},
-                {NX_SOCKETS_BOUND, "NX_SOCKETS_BOUND"},
-                {NX_NO_RESPONSE, "NX_NO_RESPONSE"},
-                {NX_POOL_DELETED, "NX_POOL_DELETED"},
-                {NX_ALREADY_RELEASED, "NX_ALREADY_RELEASED"},
-                {NX_RESERVED_CODE2, "NX_RESERVED_CODE2"},
-                {NX_MAX_LISTEN, "NX_MAX_LISTEN"},
-                {NX_DUPLICATE_LISTEN, "NX_DUPLICATE_LISTEN"},
-                {NX_NOT_CLOSED, "NX_NOT_CLOSED"},
-                {NX_NOT_LISTEN_STATE, "NX_NOT_LISTEN_STATE"},
-                {NX_IN_PROGRESS, "NX_IN_PROGRESS"},
-                {NX_NOT_CONNECTED, "NX_NOT_CONNECTED"},
-                {NX_WINDOW_OVERFLOW, "NX_WINDOW_OVERFLOW"},
-                {NX_ALREADY_SUSPENDED, "NX_ALREADY_SUSPENDED"},
-                {NX_DISCONNECT_FAILED, "NX_DISCONNECT_FAILED"},
-                {NX_STILL_BOUND, "NX_STILL_BOUND"},
-                {NX_NOT_SUCCESSFUL, "NX_NOT_SUCCESSFUL"},
-                {NX_UNHANDLED_COMMAND, "NX_UNHANDLED_COMMAND"},
-                {NX_NO_FREE_PORTS, "NX_NO_FREE_PORTS"},
-                {NX_INVALID_PORT, "NX_INVALID_PORT"},
-                {NX_INVALID_RELISTEN, "NX_INVALID_RELISTEN"},
-                {NX_CONNECTION_PENDING, "NX_CONNECTION_PENDING"},
-                {NX_TX_QUEUE_DEPTH, "NX_TX_QUEUE_DEPTH"},
-                {NX_NOT_IMPLEMENTED, "NX_NOT_IMPLEMENTED"},
-                {NX_NOT_SUPPORTED, "NX_NOT_SUPPORTED"},
-                {NX_INVALID_INTERFACE, "NX_INVALID_INTERFACE"},
-                {NX_INVALID_PARAMETERS, "NX_INVALID_PARAMETERS"},
-                {NX_NOT_FOUND, "NX_NOT_FOUND"},
-                {NX_CANNOT_START, "NX_CANNOT_START"},
-                {NX_NO_INTERFACE_ADDRESS, "NX_NO_INTERFACE_ADDRESS"},
-                {NX_INVALID_MTU_DATA, "NX_INVALID_MTU_DATA"},
-                {NX_DUPLICATED_ENTRY, "NX_DUPLICATED_ENTRY"},
-                {NX_PACKET_OFFSET_ERROR, "NX_PACKET_OFFSET_ERROR"},
-                {NX_OPTION_HEADER_ERROR, "NX_OPTION_HEADER_ERROR"},
-                {NX_CONTINUE, "NX_CONTINUE"},
-                {NX_TCPIP_OFFLOAD_ERROR, "NX_TCPIP_OFFLOAD_ERROR}"}
-            }
+        using ErrorEntry = std::pair<UINT, const char *>;
+        static constexpr std::array errorMappings{
+                ErrorEntry{NX_SUCCESS, "NX_SUCCESS"},
+                ErrorEntry{NX_NO_PACKET, "NX_NO_PACKET"},
+                ErrorEntry{NX_UNDERFLOW, "NX_UNDERFLOW"},
+                ErrorEntry{NX_OVERFLOW, "NX_OVERFLOW"},
+                ErrorEntry{NX_NO_MAPPING, "NX_NO_MAPPING"},
+                ErrorEntry{NX_DELETED, "NX_DELETED"},
+                ErrorEntry{NX_POOL_ERROR, "NX_POOL_ERROR"},
+                ErrorEntry{NX_PTR_ERROR, "NX_PTR_ERROR"},
+                ErrorEntry{NX_WAIT_ERROR, "NX_WAIT_ERROR"},
+                ErrorEntry{NX_SIZE_ERROR, "NX_SIZE_ERROR"},
+                ErrorEntry{NX_OPTION_ERROR, "NX_OPTION_ERROR"},
+                ErrorEntry{NX_DELETE_ERROR, "NX_DELETE_ERROR"},
+                ErrorEntry{NX_CALLER_ERROR, "NX_CALLER_ERROR"},
+                ErrorEntry{NX_INVALID_PACKET, "NX_INVALID_PACKET"},
+                ErrorEntry{NX_INVALID_SOCKET, "NX_INVALID_SOCKET"},
+                ErrorEntry{NX_NOT_ENABLED, "NX_NOT_ENABLED"},
+                ErrorEntry{NX_ALREADY_ENABLED, "NX_ALREADY_ENABLED"},
+                ErrorEntry{NX_ENTRY_NOT_FOUND, "NX_ENTRY_NOT_FOUND"},
+                ErrorEntry{NX_NO_MORE_ENTRIES, "NX_NO_MORE_ENTRIES"},
+                ErrorEntry{NX_ARP_TIMER_ERROR, "NX_ARP_TIMER_ERROR"},
+                ErrorEntry{NX_RESERVED_CODE0, "NX_RESERVED_CODE0"},
+                ErrorEntry{NX_WAIT_ABORTED, "NX_WAIT_ABORTED"},
+                ErrorEntry{NX_IP_INTERNAL_ERROR, "NX_IP_INTERNAL_ERROR"},
+                ErrorEntry{NX_IP_ADDRESS_ERROR, "NX_IP_ADDRESS_ERROR"},
+                ErrorEntry{NX_ALREADY_BOUND, "NX_ALREADY_BOUND"},
+                ErrorEntry{NX_PORT_UNAVAILABLE, "NX_PORT_UNAVAILABLE"},
+                ErrorEntry{NX_NOT_BOUND, "NX_NOT_BOUND"},
+                ErrorEntry{NX_RESERVED_CODE1, "NX_RESERVED_CODE1"},
+                ErrorEntry{NX_SOCKET_UNBOUND, "NX_SOCKET_UNBOUND"},
+                ErrorEntry{NX_NOT_CREATED, "NX_NOT_CREATED"},
+                ErrorEntry{NX_SOCKETS_BOUND, "NX_SOCKETS_BOUND"},
+                ErrorEntry{NX_NO_RESPONSE, "NX_NO_RESPONSE"},
+                ErrorEntry{NX_POOL_DELETED, "NX_POOL_DELETED"},
+                ErrorEntry{NX_ALREADY_RELEASED, "NX_ALREADY_RELEASED"},
+                ErrorEntry{NX_RESERVED_CODE2, "NX_RESERVED_CODE2"},
+                ErrorEntry{NX_MAX_LISTEN, "NX_MAX_LISTEN"},
+                ErrorEntry{NX_DUPLICATE_LISTEN, "NX_DUPLICATE_LISTEN"},
+                ErrorEntry{NX_NOT_CLOSED, "NX_NOT_CLOSED"},
+                ErrorEntry{NX_NOT_LISTEN_STATE, "NX_NOT_LISTEN_STATE"},
+                ErrorEntry{NX_IN_PROGRESS, "NX_IN_PROGRESS"},
+                ErrorEntry{NX_NOT_CONNECTED, "NX_NOT_CONNECTED"},
+                ErrorEntry{NX_WINDOW_OVERFLOW, "NX_WINDOW_OVERFLOW"},
+                ErrorEntry{NX_ALREADY_SUSPENDED, "NX_ALREADY_SUSPENDED"},
+                ErrorEntry{NX_DISCONNECT_FAILED, "NX_DISCONNECT_FAILED"},
+                ErrorEntry{NX_STILL_BOUND, "NX_STILL_BOUND"},
+                ErrorEntry{NX_NOT_SUCCESSFUL, "NX_NOT_SUCCESSFUL"},
+                ErrorEntry{NX_UNHANDLED_COMMAND, "NX_UNHANDLED_COMMAND"},
+                ErrorEntry{NX_NO_FREE_PORTS, "NX_NO_FREE_PORTS"},
+                ErrorEntry{NX_INVALID_PORT, "NX_INVALID_PORT"},
+                ErrorEntry{NX_INVALID_RELISTEN, "NX_INVALID_RELISTEN"},
+                ErrorEntry{NX_CONNECTION_PENDING, "NX_CONNECTION_PENDING"},
+                ErrorEntry{NX_TX_QUEUE_DEPTH, "NX_TX_QUEUE_DEPTH"},
+                ErrorEntry{NX_NOT_IMPLEMENTED, "NX_NOT_IMPLEMENTED"},
+                ErrorEntry{NX_NOT_SUPPORTED, "NX_NOT_SUPPORTED"},
+                ErrorEntry{NX_INVALID_INTERFACE, "NX_INVALID_INTERFACE"},
+                ErrorEntry{NX_INVALID_PARAMETERS, "NX_INVALID_PARAMETERS"},
+                ErrorEntry{NX_NOT_FOUND, "NX_NOT_FOUND"},
+                ErrorEntry{NX_CANNOT_START, "NX_CANNOT_START"},
+                ErrorEntry{NX_NO_INTERFACE_ADDRESS, "NX_NO_INTERFACE_ADDRESS"},
+                ErrorEntry{NX_INVALID_MTU_DATA, "NX_INVALID_MTU_DATA"},
+                ErrorEntry{NX_DUPLICATED_ENTRY, "NX_DUPLICATED_ENTRY"},
+                ErrorEntry{NX_PACKET_OFFSET_ERROR, "NX_PACKET_OFFSET_ERROR"},
+                ErrorEntry{NX_OPTION_HEADER_ERROR, "NX_OPTION_HEADER_ERROR"},
+                ErrorEntry{NX_CONTINUE, "NX_CONTINUE"},
+                ErrorEntry{NX_TCPIP_OFFLOAD_ERROR, "NX_TCPIP_OFFLOAD_ERROR"}
+#if defined(LIBSMART_STM32NETX_ENABLE_TLS) && defined(NX_WEB_HTTPS_ENABLE)
+                // Appli/Middlewares/ST/netxduo/nx_secure/inc/nx_secure_tls.h
+                ,ErrorEntry{NX_SECURE_TLS_ALERT_RECEIVED, "NX_SECURE_TLS_ALERT_RECEIVED"}
+            // TODO ...
+
+                // Appli/Middlewares/ST/netxduo/nx_secure/inc/nx_secure_x509.h
+                ,ErrorEntry{NX_SECURE_X509_CHAIN_VERIFY_FAILURE, "NX_SECURE_X509_CHAIN_VERIFY_FAILURE"}
+            // TODO ...
+#endif
         };
 
         static const char *getErrorString(UINT errorCode) {

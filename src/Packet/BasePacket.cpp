@@ -61,8 +61,8 @@ UINT BasePacket::data_append(void *data_start, ULONG data_size, NX_PACKET_POOL *
 }
 
 UINT BasePacket::data_extract_offset(ULONG offset, void *buffer_start, ULONG buffer_length, ULONG *bytes_copied) {
-    log(Stm32ItmLogger::LoggerInterface::Severity::INFORMATIONAL)
-            ->println("Stm32NetX::BasePacket::data_extract_offset()");
+    // log(Stm32ItmLogger::LoggerInterface::Severity::DEBUGGING)
+            // ->println("Stm32NetX::BasePacket::data_extract_offset()");
 
     // https://github.com/eclipse-threadx/rtos-docs/blob/main/rtos-docs/netx-duo/chapter4.md#nx_packet_data_extract_offset
     const auto ret = nx_packet_data_extract_offset(nxPacket, offset, buffer_start, buffer_length, bytes_copied);
